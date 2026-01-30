@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savourly | Premium Fitness Diet Plans</title>
+    <meta name="description"
+        content="Transform your body with personalized meal plans. Fresh, nutritious meals delivered to your door.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo"><img src="assets/images/savourly-logo-new.png" alt="Savourly" class="logo-img"></a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#plans" class="nav-link">Meal Plans</a></li>
+                <li><a href="#subscribe" class="nav-link">Subscribe & Save</a></li>
+                <li><a href="#about" class="nav-link">About Us</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="cart-btn" id="cartBtn">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1" />
+                        <circle cx="20" cy="21" r="1" />
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                    </svg>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+                <a href="#" class="btn btn-outline">Login</a>
+                <a href="#plans" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+    <div class="mobile-menu" id="mobileMenu">
+        <ul class="mobile-nav-links">
+            <li><a href="#home" class="mobile-nav-link">Home</a></li>
+            <li><a href="#plans" class="mobile-nav-link">Meal Plans</a></li>
+            <li><a href="#subscribe" class="mobile-nav-link">Subscribe & Save</a></li>
+            <li><a href="#about" class="mobile-nav-link">About Us</a></li>
+            <li class="mobile-nav-actions">
+                <button class="cart-btn mobile-cart" id="mobileCartBtn">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1" />
+                        <circle cx="20" cy="21" r="1" />
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                    </svg>
+                    <span class="cart-count" id="mobileCartCount">0</span>
+                </button>
+                <a href="#" class="btn btn-outline">Login</a>
+                <a href="#plans" class="btn btn-primary">Get Started</a>
+            </li>
+        </ul>
+    </div>
+
+    <section class="hero" id="home">
+        <div class="hero-bg-shapes">
+            <!-- Fork/Spoon -->
+            <div class="shape shape-1">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z" />
+                </svg>
+            </div>
+            <!-- Broccoli/Veggie -->
+            <div class="shape shape-2">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 2C9.24 2 7 4.24 7 7c0 1.1.36 2.14 1 3H6c-2.21 0-4 1.79-4 4s1.79 4 4 4h1v4h10v-4h1c2.21 0 4-1.79 4-4s-1.79-4-4-4h-2c.64-.86 1-1.9 1-3 0-2.76-2.24-5-5-5z" />
+                </svg>
+            </div>
+            <!-- Leaf -->
+            <div class="shape shape-3">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.71c.48.17.98.3 1.34.3 3.41 0 5.7-1.69 7.5-3.59 1.8 1.9 4.09 3.59 7.5 3.59.36 0 .86-.13 1.34-.3l.95 2.71 1.89-.66C24.1 16.17 21.9 10 13 8V3h-2v5h6z" />
+                </svg>
+            </div>
+            <!-- Carrot -->
+            <div class="shape shape-4">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M16.18 19.6l-3.57-3.57c-.57.97-1.3 1.88-2.19 2.67l-3.6-3.6c.79-.89 1.7-1.62 2.67-2.19L5.92 9.34 4.51 10.75 3.1 9.34l4.24-4.24 1.41 1.41-1.41 1.41 3.57 3.57c.57-.97 1.3-1.88 2.19-2.67l3.6 3.6c-.79.89-1.7 1.62-2.67 2.19l3.57 3.57 1.41-1.41 1.42 1.41-4.24 4.24-1.42-1.41 1.41-1.41z" />
+                </svg>
+            </div>
+            <!-- Avocado -->
+            <div class="shape shape-5">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 2C8.5 2 5 5.5 5 9.5c0 3.5 2 7 5.5 9.5C8.5 21 7 22 7 22s5 0 5-3c0 3 5 3 5 3s-1.5-1-3.5-3c3.5-2.5 5.5-6 5.5-9.5C19 5.5 15.5 2 12 2zm0 10c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
+                </svg>
+            </div>
+        </div>
+        <div class="container hero-container">
+            <div class="hero-content">
+                <span class="hero-badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg> #1 Rated Fitness Meal Service</span>
+                <h1 class="hero-title">Eat Smart,<br><span class="gradient-text">Live Better</span></h1>
+                <p class="hero-description">Chef-crafted, nutritionist-approved meals designed to fuel your fitness
+                    journey. Fresh ingredients, perfect macros, delivered daily.</p>
+
+                <div class="hero-price-box">
+                    <div class="price-tag-wrapper">
+                        <span class="price-starts">Starting at just</span>
+                        <div class="price-main">
+                            <span class="rupee-symbol">₹</span>
+                            <span class="price-big">129</span>
+                            <span class="price-per">/meal</span>
+                        </div>
+                    </div>
+                    <div class="price-features">
+                        <div class="price-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg> Fresh Daily</div>
+                        <div class="price-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg> Free Delivery</div>
+                        <div class="price-feature"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg> Cancel Anytime</div>
+                    </div>
+                </div>
+
+                <div class="hero-cta">
+                    <a href="#plans" class="btn btn-primary btn-lg"><span>Start Your Journey</span><svg width="20"
+                            height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg></a>
+                    <a href="#" class="btn btn-outline btn-lg"><svg width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3" />
+                        </svg><span>Watch Video</span></a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-image-container">
+                    <div class="hero-image-wrapper"><img
+                            src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=600&fit=crop"
+                            alt="Healthy salad bowl" class="hero-image"></div>
+                    <div class="floating-card card-1"><img src="assets/images/protein-icon.png" alt="Protein"
+                            class="card-icon-img">
+                        <div class="card-content"><span class="card-title">Protein</span><span
+                                class="card-value">35g</span></div>
+                    </div>
+                    <div class="floating-card card-2"><img src="assets/images/kcal-icon.png" alt="Calories"
+                            class="card-icon-img">
+                        <div class="card-content"><span class="card-title">Calories</span><span
+                                class="card-value">415</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="plans" id="plans">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Our Plans</span>
+                <h2 class="section-title">Choose Your <span class="gradient-text">Perfect Plan</span></h2>
+                <p class="section-description">Whether you're looking to lose weight, build muscle, or maintain a
+                    healthy lifestyle, we have the perfect plan.</p>
+            </div>
+            <div class="plans-grid">
+                <!-- Silver Plan -->
+                <div class="plan-card">
+                    <div class="plan-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=250&fit=crop"
+                            alt="Silver Plan Bowl" class="plan-image">
+                        <div class="plan-badge silver">Silver</div>
+                    </div>
+                    <div class="plan-content">
+                        <h3 class="plan-name">Silver Plan</h3>
+                        <p class="plan-description">Perfect for beginners starting their fitness journey with balanced
+                            nutrition.</p>
+                        <div class="plan-price"><span class="price-currency">₹</span><span
+                                class="price-value">2,499</span><span class="price-period">/week</span></div>
+                        <ul class="plan-features">
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>14 meals per week</span></li>
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>Balanced macros</span></li>
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>Weekly planning</span></li>
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>Email support</span></li>
+                        </ul>
+                        <p class="plan-info" id="silverInfo">Start your wellness journey with carefully portioned meals
+                            that help maintain consistent energy levels throughout the day.</p>
+                        <button class="btn btn-outline btn-block add-to-cart" data-plan="Silver Plan"
+                            data-price="2499">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- Gold Plan -->
+                <div class="plan-card featured">
+                    <div class="plan-ribbon">Most Popular</div>
+                    <div class="plan-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=250&fit=crop"
+                            alt="Gold Plan Bowl" class="plan-image">
+                        <div class="plan-badge gold">Gold</div>
+                    </div>
+                    <div class="plan-content">
+                        <h3 class="plan-name">Gold Plan</h3>
+                        <p class="plan-description">Ideal for dedicated fitness enthusiasts looking for optimal results.
+                        </p>
+                        <div class="plan-price"><span class="price-currency">₹</span><span
+                                class="price-value">4,999</span><span class="price-period">/week</span></div>
+                        <ul class="plan-features">
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>21 meals per week</span></li>
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>Custom macro targets</span></li>
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>Flexible meal swapping</span></li>
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>24/7 priority support</span></li>
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>Monthly check-ins</span></li>
+                        </ul>
+                        <p class="plan-info" id="goldInfo">Unlock your full potential with premium ingredients and
+                            personalized nutrition tracking for sustainable transformation.</p>
+                        <button class="btn btn-primary btn-block add-to-cart" data-plan="Gold Plan"
+                            data-price="4999">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- Platinum Plan -->
+                <div class="plan-card">
+                    <div class="plan-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=250&fit=crop"
+                            alt="Platinum Plan Bowl" class="plan-image">
+                        <div class="plan-badge platinum">Platinum</div>
+                    </div>
+                    <div class="plan-content">
+                        <h3 class="plan-name">Platinum Plan</h3>
+                        <p class="plan-description">The ultimate package for athletes seeking peak performance.</p>
+                        <div class="plan-price"><span class="price-currency">₹</span><span
+                                class="price-value">7,999</span><span class="price-period">/week</span></div>
+                        <ul class="plan-features">
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>28 meals + snacks</span></li>
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>Personalized recipes</span></li>
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>1-on-1 nutritionist</span></li>
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>Workout meal timing</span></li>
+                            <li class="feature"><svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg><span>Weekly analytics</span></li>
+                        </ul>
+                        <p class="plan-info" id="platinumInfo">Experience elite-level nutrition with dedicated support,
+                            ensuring every meal accelerates your path to excellence.</p>
+                        <button class="btn btn-platinum btn-block add-to-cart" data-plan="Platinum Plan"
+                            data-price="7999">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subscription Box Section -->
+    <section class="subscribe" id="subscribe">
+        <div class="container">
+            <div class="subscribe-box">
+                <div class="subscribe-content">
+                    <h2 class="subscribe-title">Subscribe & Save 20%</h2>
+                    <p class="subscribe-description">Get exclusive discounts, early access to new meals, and
+                        personalized nutrition tips delivered to your inbox.</p>
+                </div>
+                <form class="subscribe-form" id="subscribeForm">
+                    <div class="form-row">
+                        <input type="text" placeholder="Your Name" class="form-input" required>
+                        <input type="email" placeholder="Your Email" class="form-input" required>
+                        <select class="form-input form-select" required>
+                            <option value="" disabled selected>Select Plan</option>
+                            <option value="silver">Silver Plan</option>
+                            <option value="gold">Gold Plan</option>
+                            <option value="platinum">Platinum Plan</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <span>Subscribe Now</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </form>
+                <p class="subscribe-note">✓ No spam ever ✓ Unsubscribe anytime ✓ Free first week</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Why Choose Us</span>
+                <h2 class="section-title">The <span class="gradient-text">Savourly</span> Difference</h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            <path d="M9 12l2 2 4-4" />
+                        </svg></div>
+                    <h3 class="feature-card-title">Fresh Ingredients</h3>
+                    <p class="feature-card-description">Locally sourced, organic ingredients prepared daily.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg></div>
+                    <h3 class="feature-card-title">Quick Prep</h3>
+                    <p class="feature-card-description">Heat and eat in under 3 minutes.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                            <path d="M4 22h16" />
+                            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                        </svg></div>
+                    <h3 class="feature-card-title">Expert Nutrition</h3>
+                    <p class="feature-card-description">Meals designed by certified nutritionists.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="3" width="15" height="13" />
+                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                            <circle cx="5.5" cy="18.5" r="2.5" />
+                            <circle cx="18.5" cy="18.5" r="2.5" />
+                        </svg></div>
+                    <h3 class="feature-card-title">Free Delivery</h3>
+                    <p class="feature-card-description">Fresh delivery straight to your door.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg></div>
+                    <h3 class="feature-card-title">Expert Support</h3>
+                    <p class="feature-card-description">Access to nutritionists and fitness experts.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-card-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg></div>
+                    <h3 class="feature-card-title">Track Progress</h3>
+                    <p class="feature-card-description">Monitor your nutrition with our dashboard.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="gallery">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Our Menu</span>
+                <h2 class="section-title">Delicious <span class="gradient-text">Healthy Meals</span></h2>
+            </div>
+            <div class="gallery-grid">
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=400&fit=crop"
+                        alt="Colorful salad">
+                    <div class="gallery-overlay">
+                        <h4>Rainbow Bowl</h4>
+                        <p>420 cal • 35g protein</p>
+                    </div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=400&fit=crop"
+                        alt="Grilled salmon">
+                    <div class="gallery-overlay">
+                        <h4>Grilled Salmon</h4>
+                        <p>380 cal • 42g protein</p>
+                    </div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=400&fit=crop"
+                        alt="Breakfast bowl">
+                    <div class="gallery-overlay">
+                        <h4>Power Breakfast</h4>
+                        <p>350 cal • 28g protein</p>
+                    </div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=400&fit=crop"
+                        alt="Chicken bowl">
+                    <div class="gallery-overlay">
+                        <h4>Chicken Teriyaki</h4>
+                        <p>520 cal • 48g protein</p>
+                    </div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=400&fit=crop"
+                        alt="Fresh salad">
+                    <div class="gallery-overlay">
+                        <h4>Garden Fresh</h4>
+                        <p>290 cal • 18g protein</p>
+                    </div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=400&fit=crop"
+                        alt="Veggie plate">
+                    <div class="gallery-overlay">
+                        <h4>Veggie Delight</h4>
+                        <p>310 cal • 22g protein</p>
+                    </div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=400&fit=crop"
+                        alt="Fruit bowl">
+                    <div class="gallery-overlay">
+                        <h4>Berry Bliss</h4>
+                        <p>240 cal • 8g protein</p>
+                    </div>
+                </div>
+                <div class="gallery-item"><img
+                        src="https://images.unsplash.com/photo-1482049016gy6-cd7f1c0c4a25?w=400&h=400&fit=crop"
+                        alt="Buddha bowl">
+                    <div class="gallery-overlay">
+                        <h4>Buddha Bowl</h4>
+                        <p>450 cal • 32g protein</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Testimonials</span>
+                <h2 class="section-title">What Our <span class="gradient-text">Customers Say</span></h2>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">"Savourly completely changed my relationship with food. I've lost 15 lbs
+                        in 2 months!"</p>
+                    <div class="testimonial-author"><img
+                            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop"
+                            alt="Sarah M." class="author-image">
+                        <div class="author-info"><span class="author-name">Sarah Mitchell</span><span
+                                class="author-role">Fitness Enthusiast</span></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">"Restaurant-quality meals that fit my macros perfectly. Game changer!"
+                    </p>
+                    <div class="testimonial-author"><img
+                            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop"
+                            alt="James K." class="author-image">
+                        <div class="author-info"><span class="author-name">James Kim</span><span
+                                class="author-role">Software Engineer</span></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">"The Platinum Plan helped me achieve my competition goals. Highly
+                        recommend!"</p>
+                    <div class="testimonial-author"><img
+                            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop"
+                            alt="Emma L." class="author-image">
+                        <div class="author-info"><span class="author-name">Emma Lopez</span><span
+                                class="author-role">Athlete</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-content">
+                    <span class="section-badge">About Us</span>
+                    <h2 class="section-title">Passion for <span class="gradient-text">Healthy Living</span></h2>
+                    <p class="about-text">At Savourly, we believe that healthy eating shouldn't mean compromising on
+                        taste. Our team of expert chefs and certified nutritionists work together to create meals that
+                        are both delicious and perfectly balanced for your fitness goals.</p>
+                    <p class="about-text">Founded in 2023, we've helped thousands of people transform their eating
+                        habits with our premium meal plans. Every meal is prepared fresh daily using locally-sourced,
+                        organic ingredients.</p>
+                    <div class="about-stats">
+                        <div class="about-stat"><span class="stat-number">50K+</span><span class="stat-label">Happy
+                                Customers</span></div>
+                        <div class="about-stat"><span class="stat-number">100+</span><span class="stat-label">Unique
+                                Recipes</span></div>
+                        <div class="about-stat"><span class="stat-number">4.9</span><span class="stat-label">Star
+                                Rating</span></div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=500&fit=crop"
+                        alt="Our Kitchen">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">Ready to Transform Your Nutrition?</h2>
+                <p class="cta-description">Start your fitness journey with Savourly today and taste the difference!</p>
+                <a href="#plans" class="btn btn-white btn-lg"><span>Start Your Plan</span><svg width="20" height="20"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg></a>
+                <p class="cta-note">No commitment • Cancel anytime • Free first delivery</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand"><a href="#" class="logo"><span class="logo-icon">🥗</span><span
+                            class="logo-text">Savourly</span></a>
+                    <p class="footer-tagline">Transforming lives through nutrition since 2020.</p>
+                </div>
+                <div class="footer-links">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-menu">
+                        <li><a href="#plans">Meal Plans</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#testimonials">Reviews</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4 class="footer-title">Support</h4>
+                    <ul class="footer-menu">
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Shipping</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4 class="footer-title">Legal</h4>
+                    <ul class="footer-menu">
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">© 2026 Savourly. All rights reserved. Made with ❤️</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Your Cart</h3>
+            <button class="cart-close" id="cartClose">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="cart-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="9" cy="21" r="1" />
+                    <circle cx="20" cy="21" r="1" />
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                </svg>
+                <p>Your cart is empty</p>
+                <a href="#plans" class="btn btn-primary" id="browseBtn">Browse Plans</a>
+            </div>
+        </div>
+        <div class="cart-footer" id="cartFooter" style="display: none;">
+            <div class="cart-total">
+                <span>Total</span>
+                <span class="total-amount" id="totalAmount">₹0</span>
+            </div>
+            <button class="btn btn-primary btn-block checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>
