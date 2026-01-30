@@ -1686,6 +1686,12 @@ ul {
 
 @media (max-width: 768px) {
 
+    /* Prevent horizontal scroll on mobile */
+    html,
+    body {
+        overflow-x: hidden;
+    }
+
     .nav-links,
     .nav-actions .desktop-only,
     .nav-actions .desktop-cart {
@@ -1849,8 +1855,8 @@ ul {
     /* Mobile: Position cards diagonally away from image */
     .hero-image-container .card-1 {
         top: 5%;
-        /* Top-left diagonal */
-        left: -90px;
+        left: -60px;
+        /* Reduced to prevent overflow */
         right: auto;
         bottom: auto;
         transform: none;
@@ -1858,8 +1864,8 @@ ul {
 
     .hero-image-container .card-2 {
         bottom: 5%;
-        /* Bottom-right diagonal */
-        right: -90px;
+        right: -60px;
+        /* Reduced to prevent overflow */
         top: auto;
         left: auto;
         transform: none;
