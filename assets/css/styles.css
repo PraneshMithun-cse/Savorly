@@ -279,6 +279,15 @@ ul {
     color: var(--primary);
 }
 
+.desktop-only {
+    display: inline-flex;
+}
+
+.mobile-cart-trigger {
+    display: none !important;
+    /* Force hide on desktop to override generic .cart-btn styles */
+}
+
 .nav-container {
     display: flex;
     align-items: center;
@@ -294,7 +303,8 @@ ul {
 }
 
 .logo-img {
-    height: 45px;
+    height: 52px;
+    /* Increased from 45px */
     width: auto;
     transition: all 0.3s ease;
 }
@@ -361,55 +371,99 @@ ul {
 }
 
 /* Mobile Menu */
+/* Mobile Menu - Premium Glass Overlay */
 .mobile-menu {
-    display: none;
     position: fixed;
-    top: 73px;
-    left: 0;
-    right: 0;
-    background: var(--white);
-    padding: 24px;
-    border-bottom: 1px solid var(--gray-100);
-    box-shadow: var(--shadow-lg);
+    inset: 0;
+    top: 70px;
+    /* Below navbar */
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
     z-index: 999;
     opacity: 0;
-    transform: translateY(-10px);
-    transition: var(--transition);
+    pointer-events: none;
+    transform: translateY(-20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 40px 24px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .mobile-menu.active {
     opacity: 1;
+    pointer-events: all;
     transform: translateY(0);
 }
 
 .mobile-nav-links {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
+    margin-bottom: 32px;
 }
 
 .mobile-nav-link {
     display: block;
-    padding: 14px 16px;
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--gray-700);
-    border-radius: var(--radius);
-    transition: var(--transition);
+    padding: 16px 20px;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--gray-800);
+    border-radius: var(--radius-lg);
+    background: var(--gray-50);
+    transition: all 0.3s ease;
+    text-align: center;
+    transform: translateY(20px);
+    opacity: 0;
 }
 
-.mobile-nav-link:hover {
+.mobile-menu.active .mobile-nav-link {
+    animation: slideUpFade 0.5s ease forwards;
+}
+
+.mobile-menu.active .mobile-nav-link:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.mobile-menu.active .mobile-nav-link:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.mobile-menu.active .mobile-nav-link:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.mobile-menu.active .mobile-nav-link:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.mobile-nav-link:hover,
+.mobile-nav-link.active {
     background: var(--primary-light);
     color: var(--primary);
+    transform: scale(1.02);
 }
 
 .mobile-nav-actions {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-top: 16px;
-    padding-top: 16px;
+    gap: 16px;
+    padding-top: 24px;
     border-top: 1px solid var(--gray-100);
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.mobile-menu.active .mobile-nav-actions {
+    animation: slideUpFade 0.5s ease forwards 0.5s;
+}
+
+@keyframes slideUpFade {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ============================================
@@ -651,34 +705,20 @@ ul {
     position: absolute;
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 16px 20px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: var(--radius-xl);
-    box-shadow:
-        0 20px 40px rgba(0, 0, 0, 0.15),
-        0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+    gap: 8px;
+    padding: 0;
+    background: transparent;
+    backdrop-filter: none;
+    border-radius: 0;
+    box-shadow: none;
     animation: floatCard 4s ease-in-out infinite;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    overflow: hidden;
+    cursor: default;
     z-index: 10;
 }
 
 .floating-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg,
-            transparent,
-            rgba(255, 255, 255, 0.8),
-            transparent);
-    transition: 0.5s;
-    pointer-events: none;
+    display: none;
 }
 
 .floating-card:hover {
@@ -695,12 +735,13 @@ ul {
 }
 
 .card-icon-img {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     object-fit: contain;
     padding: 8px;
-    background: linear-gradient(135deg, #E8F8F5 0%, #D1F2EB 100%);
-    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    backdrop-filter: blur(4px);
     transition: transform 0.3s ease;
 }
 
@@ -709,14 +750,16 @@ ul {
 }
 
 .card-1 {
-    top: 12%;
-    left: -30px;
+    top: 10%;
+    left: -60px;
+    /* Move further out on desktop */
     animation-delay: 0s;
 }
 
 .card-2 {
-    bottom: 12%;
-    right: -40px;
+    bottom: 10%;
+    right: -60px;
+    /* Move further out on desktop */
     animation-delay: 1.5s;
 }
 
@@ -742,8 +785,21 @@ ul {
 }
 
 .card-title {
-    font-size: 12px;
-    color: var(--gray-500);
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    margin-bottom: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.card-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .card-value {
@@ -1481,10 +1537,19 @@ ul {
     .hero-container {
         grid-template-columns: 1fr;
         text-align: center;
+        gap: 20px;
+        /* Reduced gap from 40px */
+    }
+
+    .hero-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .hero-description {
-        margin: 0 auto 32px;
+        margin: 0 auto 16px;
+        /* Reduced margin from 32px */
     }
 
     .hero-cta {
@@ -1496,85 +1561,440 @@ ul {
     }
 
     .hero-visual {
-        order: -1;
         margin-bottom: 40px;
+        /* Image below text for better storytelling on mobile, or remove margin if image first */
     }
 
     .hero-image-container {
         max-width: 350px;
-    }
-
-    .plans-grid {
-        grid-template-columns: 1fr;
-        max-width: 400px;
         margin: 0 auto;
     }
 
-    .plan-card.featured {
-        transform: none;
+    /* Hero Reordering */
+    .hero-container {
+        display: flex;
+        flex-direction: column;
     }
 
-    .plan-card.featured:hover {
-        transform: translateY(-8px);
+    .hero-content {
+        display: contents;
+        /* Allows children to be ordered relative to hero-visual */
     }
 
-    .features-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .hero-badge {
+        order: 1;
     }
 
-    .gallery-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .hero-title {
+        order: 2;
     }
 
-    .testimonials-grid {
-        grid-template-columns: 1fr;
+    .hero-description {
+        order: 3;
     }
 
-    .footer-grid {
-        grid-template-columns: 1fr 1fr;
+    .hero-visual {
+        order: 4;
+        margin: 10px 0 20px;
+        /* Reduced margins from 20px 0 40px */
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .hero-price-box {
+        order: 5;
+        width: 100%;
+        max-width: 400px;
+        /* Limit width */
+    }
+
+    .hero {
+        padding: 80px 0 20px;
+        /* Reduced padding */
+        min-height: 100vh;
+        /* Force full height */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .hero-title {
+        font-size: 32px;
+        /* Slightly smaller for better fit */
+        margin-bottom: 10px;
+    }
+
+    .hero-description {
+        display: none;
+        /* Hide description on mobile as requested */
+    }
+
+    .hero-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: space-evenly;
+        gap: 10px;
+    }
+
+    .hero-visual {
+        order: 3;
+        /* Moved visual up */
+        margin: 10px 0;
+        width: 100%;
+        flex: 1;
+        /* Allow it to take available space */
+        max-height: 40vh;
+        /* Limit height to prevent overflow */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hero-image-container {
+        max-width: 280px;
+        /* Smaller image */
+        margin: 0 auto;
+    }
+
+    .hero-price-box {
+        order: 4;
+        padding: 16px;
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 1px;
+    }
+
+    .price-big {
+        font-size: 36px;
+        /* Smaller price font */
+    }
+
+    .mobile-cart-trigger {
+        display: flex !important;
+        /* Enable on mobile */
+        margin-right: 0;
+        /* Corner alignment */
+    }
+
+    .nav-actions {
+        margin-right: 12px;
+        /* Push hamburger slightly */
     }
 }
 
 @media (max-width: 768px) {
 
     .nav-links,
-    .nav-actions {
+    .nav-actions .desktop-only,
+    .nav-actions .desktop-cart {
         display: none;
+    }
+
+    .mobile-cart-trigger {
+        display: flex;
+        margin-right: 0;
+        width: 36px;
+        /* Smaller button */
+        height: 36px;
+    }
+
+    .mobile-cart-trigger svg {
+        width: 18px;
+        /* Smaller icon */
+        height: 18px;
+    }
+
+    .mobile-cart-trigger .cart-count {
+        top: -2px;
+        right: -2px;
+        min-width: 16px;
+        height: 16px;
+        font-size: 10px;
+        padding: 0 4px;
+    }
+
+    .nav-actions {
+        display: flex;
+        margin-left: auto;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .nav-container {
+        padding: 10px 16px;
+        /* Reduce padding for smaller navbar */
+    }
+
+    .logo img {
+        height: 40px;
+        /* Bigger logo on mobile too */
     }
 
     .hamburger {
         display: flex;
+        margin-left: 0;
+    }
+
+    /* Horizontal Sliding Plans */
+    .plans {
+        overflow: hidden;
+        /* Hide scrollbar from section if needed */
+    }
+
+    .plans-grid {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 16px;
+        padding-bottom: 24px;
+        width: calc(100% + 48px);
+        /* Break out of container */
+        margin-left: -24px;
+        padding-left: 24px;
+        padding-right: 24px;
+        scrollbar-width: none;
+        /* Hide scrollbar Firefox */
+    }
+
+    .plans-grid::-webkit-scrollbar {
+        display: none;
+        /* Hide scrollbar Chrome/Safari */
+    }
+
+    .plan-card {
+        min-width: 85%;
+        scroll-snap-align: center;
+        margin-bottom: 0;
     }
 
     .mobile-menu {
-        display: block;
+        display: flex;
     }
 
     .hero {
-        padding: 100px 0 60px;
-        min-height: auto;
+        padding: 80px 0 20px;
+        height: 100vh;
+        /* Force full height */
+        min-height: 550px;
+        /* Minimum height for safety */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .hero-title {
         font-size: 32px;
+        margin-bottom: 8px;
+        line-height: 1.1;
     }
 
     .hero-description {
-        font-size: 16px;
+        display: none;
     }
 
-    .hero-price-highlight {
+    .hero-container {
+        display: flex;
         flex-direction: column;
-        gap: 4px;
-        padding: 12px 20px;
+        height: 100%;
+        justify-content: flex-start;
+        /* Align to top to control spacing better */
+        gap: 0;
+        padding-top: 20px;
+        /* Add space between navbar and content */
     }
 
-    .hero-price-highlight .price-amount {
-        font-size: 28px;
+    .hero-visual {
+        order: 3;
+        margin: 10px 0;
+        width: 100%;
+        flex: 1;
+        max-height: 45vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: visible;
+        /* Allow cards to extend outside */
+    }
+
+    .hero-image-container {
+        max-width: 280px;
+        margin: 0 auto;
+        position: relative;
+        /* Ensure it's a positioning context */
+    }
+
+    .hero-image-container .floating-card {
+        padding: 5px 10px;
+        z-index: 20;
+    }
+
+    .hero-image-container .card-icon-img {
+        width: 32px;
+        height: 32px;
+        padding: 6px;
+    }
+
+    .hero-image-container .card-title {
+        font-size: 11px;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-image-container .card-value {
+        font-size: 14px;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Mobile: Position cards diagonally away from image */
+    .hero-image-container .card-1 {
+        top: 5%;
+        /* Top-left diagonal */
+        left: -90px;
+        right: auto;
+        bottom: auto;
+        transform: none;
+    }
+
+    .hero-image-container .card-2 {
+        bottom: 5%;
+        /* Bottom-right diagonal */
+        right: -90px;
+        top: auto;
+        left: auto;
+        transform: none;
+    }
+
+    .hero-price-box {
+        order: 4;
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        padding: 0 20px;
+        /* Add horizontal padding to prevent clipping */
+        width: 100%;
+        min-height: 80px;
+        margin-bottom: 10px;
+        text-align: center;
+        background: transparent;
+        box-shadow: none;
+        border: none;
+        animation: none;
+        position: relative;
+        z-index: 5;
+        margin-top: 15px;
+        overflow: visible;
+        /* Prevent clipping */
+    }
+
+    .hero-price-box::before {
+        display: none;
+    }
+
+    .price-tag-wrapper {
+        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        background: transparent;
+        /* Remove background */
+        padding: 0;
+        border-radius: 0;
+        box-shadow: none;
+        backdrop-filter: none;
+        display: inline-flex;
+    }
+
+    .price-starts {
+        margin-bottom: 4px;
+        font-size: 16px;
+        font-weight: 600;
+        opacity: 0.9;
+        color: #fff;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .price-main {
+        display: flex !important;
+        align-items: baseline;
+        justify-content: center;
+        gap: 4px;
+    }
+
+    .rupee-symbol {
+        font-size: 32px;
+        font-weight: 700;
+        color: #fff;
+        line-height: 1;
+        display: inline-block;
+    }
+
+    .price-big {
+        font-size: 52px;
+        font-weight: 800;
+        line-height: 1.0;
+        color: #fff;
+        /* White text */
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    .hero-price-box .price-big {
+        font-size: 60px;
+        /* Even bigger */
+    }
+
+    .price-features {
+        display: none;
+    }
+
+    .hero-cta {
+        order: 5;
+        width: 100%;
+        justify-content: center;
+        flex-direction: column;
+        gap: 0;
+        margin-top: 20px;
+        /* Push button down */
+        padding-bottom: 20px;
+    }
+
+    .hero-cta .btn {
+        width: 100%;
+        max-width: 320px;
+        margin: 0 auto;
+        height: 56px;
+        font-size: 18px;
+    }
+
+    .hero-cta .btn-outline {
+        display: none;
+    }
+
+    .hero-cta .btn {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
     }
 
     .floating-card {
-        display: none;
+        padding: 10px 14px;
+        gap: 8px;
+    }
+
+    .floating-card .card-icon-img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .card-1 {
+        left: -10px;
+        top: 10%;
+    }
+
+    .card-2 {
+        right: -10px;
+        bottom: 10%;
     }
 
     .plans,

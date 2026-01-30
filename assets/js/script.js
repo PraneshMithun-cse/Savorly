@@ -25,6 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const browseBtn = document.getElementById('browseBtn');
     const checkoutBtn = document.getElementById('checkoutBtn');
 
+    // New Mobile Navbar Elements
+    const mobileNavbarCartBtn = document.getElementById('mobileNavbarCartBtn');
+    const mobileNavbarCartCount = document.getElementById('mobileNavbarCartCount');
+
     // Cart State
     let cart = JSON.parse(localStorage.getItem('savourlyCart')) || [];
 
@@ -122,7 +126,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update count badges
         const count = cart.length;
         if (cartCount) cartCount.textContent = count;
+        if (cartCount) cartCount.textContent = count;
         if (mobileCartCount) mobileCartCount.textContent = count;
+        if (mobileNavbarCartCount) mobileNavbarCartCount.textContent = count;
 
         // Calculate total
         const total = cart.reduce((sum, item) => sum + item.price, 0);
@@ -187,6 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Cart button clicks
     cartBtn?.addEventListener('click', openCart);
     mobileCartBtn?.addEventListener('click', openCart);
+    mobileNavbarCartBtn?.addEventListener('click', openCart);
     cartClose?.addEventListener('click', closeCart);
     cartOverlay?.addEventListener('click', closeCart);
 
