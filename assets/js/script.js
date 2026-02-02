@@ -217,7 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.add-to-cart').forEach(btn => {
         btn.addEventListener('click', () => {
             const plan = btn.dataset.plan;
-            const price = parseInt(btn.dataset.price);
+            // Remove commas from price before parsing
+            const price = parseInt(btn.dataset.price.replace(/,/g, ''));
             const image = planImages[plan] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop';
             addToCart(plan, price, image);
 
@@ -314,4 +315,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     `;
     document.head.appendChild(style);
+
+    // ============================================
+    // AUTO-SLIDING FOR MOBILE SECTIONS
+    // ============================================
+    const isMobile = () => window.innerWidth <= 768;
+
+    const createAutoSlider = (containerSelector, interval = 3000) => {
+        const container = document.querySelector(containerSelector);
+        if (!container) return;
+
+        let autoScrollInterval;
+        let isUserInteracting = false;
+
+        const startAutoScroll = () => {
+            if (!isMobile()) return;
+
+            autoScrollInterval = setInterval(() => {
+                if (isUserInteracting) return;
+
+                const scrollWidth = container.scrollWidth;
+                const clientWidth = container.clientWidth;
+                const currentScroll = container.scrollLeft;
+
+                // Calculate next scroll position
+                const itemWidth = container.firstElementChild?.offsetWidth || clientWidth * 0.8;
+                let nextScroll = currentScroll + itemWidth + 16; // 16 is the gap
+
+                // If we've reached the end, loop back to start
+                if (nextScroll >= scrollWidth - clientWidth) {
+                    container.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    container.scrollTo({ left: nextScroll, behavior: 'smooth' });
+                }
+            }, interval);
+        };
+
+        const stopAutoScroll = () => {
+            clearInterval(autoScrollInterval);
+        };
+
+        // Pause on user interaction
+        container.addEventListener('touchstart', () => {
+            isUserInteracting = true;
+        });
+
+        container.addEventListener('touchend', () => {
+            setTimeout(() => {
+                isUserInteracting = false;
+            }, 2000); // Resume after 2 seconds of no interaction
+        });
+
+        container.addEventListener('mouseenter', () => {
+            isUserInteracting = true;
+        });
+
+        container.addEventListener('mouseleave', () => {
+            isUserInteracting = false;
+        });
+
+        // Start/stop based on screen size
+        const handleResize = () => {
+            stopAutoScroll();
+            if (isMobile()) {
+                startAutoScroll();
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        // Initial start
+        if (isMobile()) {
+            startAutoScroll();
+        }
+    };
+
+    // Initialize auto-sliders for features and gallery
+    createAutoSlider('.features-grid', 250); // Slide every 0.25 seconds
+    createAutoSlider('.gallery-grid', 250);  // Slide every 0.25 seconds
 });

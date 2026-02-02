@@ -240,11 +240,11 @@ ul {
 
 /* Nav link colors for transparent navbar on hero */
 .navbar .nav-link {
-    color: var(--white);
+    color: var(--gray-800);
 }
 
 .navbar .nav-link:hover {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--gray-900);
 }
 
 .navbar.scrolled .nav-link {
@@ -476,7 +476,40 @@ ul {
     align-items: center;
     padding: 120px 0 80px;
     overflow: hidden;
-    background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 50%, #FF6B35 100%);
+    background: linear-gradient(135deg, #00C9A7 0%, #00DDB8 50%, #00C9A7 100%);
+}
+
+/* Hero-specific orange buttons */
+.hero .btn-primary {
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.35);
+}
+
+.hero .btn-primary:hover {
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.45);
+}
+
+.hero .btn-outline {
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+    color: var(--white);
+    border: none;
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.35);
+}
+
+.hero .btn-outline:hover {
+    background: linear-gradient(135deg, #FF8E53 0%, #FF6B35 100%);
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.45);
+    color: var(--white);
+}
+
+/* Navbar buttons orange when transparent (on hero) */
+.navbar:not(.scrolled) .btn-primary {
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.35);
+}
+
+.navbar:not(.scrolled) .btn-primary:hover {
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.45);
 }
 
 .hero-bg-shapes {
@@ -575,14 +608,14 @@ ul {
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(10px);
-    color: var(--white);
+    color: var(--gray-800);
     font-size: 14px;
     font-weight: 600;
     border-radius: var(--radius-full);
     margin-bottom: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .hero-badge svg {
@@ -619,7 +652,7 @@ ul {
 
 .hero-description {
     font-size: 18px;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--gray-800);
     line-height: 1.7;
     margin-bottom: 32px;
     max-width: 500px;
@@ -848,12 +881,12 @@ ul {
 .hero-price-box {
     display: inline-flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #00C9A7 0%, #00A88A 100%);
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
     border-radius: var(--radius-2xl);
     padding: 24px 32px;
     margin-bottom: 32px;
     box-shadow:
-        0 20px 40px rgba(0, 201, 167, 0.3),
+        0 20px 40px rgba(255, 107, 53, 0.3),
         0 0 0 1px rgba(255, 255, 255, 0.2) inset;
     position: relative;
     overflow: hidden;
@@ -879,14 +912,14 @@ ul {
     0%,
     100% {
         box-shadow:
-            0 20px 40px rgba(0, 201, 167, 0.3),
+            0 20px 40px rgba(255, 107, 53, 0.3),
             0 0 0 1px rgba(255, 255, 255, 0.2) inset;
     }
 
     50% {
         box-shadow:
-            0 25px 50px rgba(0, 201, 167, 0.4),
-            0 0 60px rgba(0, 201, 167, 0.2),
+            0 25px 50px rgba(255, 107, 53, 0.4),
+            0 0 60px rgba(255, 107, 53, 0.2),
             0 0 0 1px rgba(255, 255, 255, 0.3) inset;
     }
 }
@@ -1023,6 +1056,30 @@ ul {
 .plan-card.featured:hover {
     transform: scale(1.03) translateY(-12px);
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18), 0 0 50px rgba(0, 201, 167, 0.2);
+}
+
+/* Gold Plan - Gold border and glow */
+.plan-card.gold-plan {
+    border: 3px solid #FFD700;
+    box-shadow: var(--shadow-lg), 0 0 40px rgba(255, 215, 0, 0.25);
+}
+
+.plan-card.gold-plan:hover {
+    transform: scale(1.03) translateY(-12px);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18), 0 0 60px rgba(255, 215, 0, 0.35);
+    border-color: #FFC000;
+}
+
+/* Platinum Plan - Purple border and glow */
+.plan-card.platinum-plan {
+    border: 3px solid #9B59B6;
+    box-shadow: var(--shadow-lg), 0 0 40px rgba(155, 89, 182, 0.25);
+}
+
+.plan-card.platinum-plan:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18), 0 0 60px rgba(155, 89, 182, 0.35);
+    border-color: #8E44AD;
 }
 
 .plan-ribbon {
@@ -1610,13 +1667,11 @@ ul {
     }
 
     .hero {
-        padding: 80px 0 20px;
-        /* Reduced padding */
-        min-height: 100vh;
-        /* Force full height */
+        padding: 100px 0 40px;
+        min-height: auto;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
     }
 
     .hero-title {
@@ -1961,8 +2016,8 @@ ul {
         flex-direction: column;
         gap: 0;
         margin-top: 20px;
-        /* Push button down */
-        padding-bottom: 20px;
+        padding-bottom: 60px;
+        margin-bottom: 20px;
     }
 
     .hero-cta .btn {
@@ -2024,13 +2079,48 @@ ul {
         margin-bottom: 40px;
     }
 
+    /* Features grid - horizontal slider on mobile */
     .features-grid {
-        grid-template-columns: 1fr;
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 16px;
+        padding-bottom: 16px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
     }
 
+    .features-grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .features-grid .feature-card {
+        flex: 0 0 85%;
+        max-width: 85%;
+        scroll-snap-align: center;
+    }
+
+    /* Gallery grid - horizontal slider on mobile */
     .gallery-grid {
-        grid-template-columns: 1fr 1fr;
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
         gap: 16px;
+        padding-bottom: 16px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .gallery-grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .gallery-grid .gallery-item {
+        flex: 0 0 75%;
+        max-width: 75%;
+        scroll-snap-align: center;
     }
 
     .footer-grid {
@@ -2061,16 +2151,40 @@ ul {
         height: 150px;
     }
 
-    .gallery-grid {
-        grid-template-columns: 1fr;
+    .gallery-grid .gallery-item {
+        flex: 0 0 90%;
+        max-width: 90%;
     }
 
     .about-grid {
         grid-template-columns: 1fr;
+        gap: 32px;
     }
 
     .about-image {
         order: -1;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .about-image img {
+        width: 100%;
+        height: auto;
+        border-radius: var(--radius-xl);
+    }
+
+    .about-content .section-title {
+        text-align: center;
+    }
+
+    .about-content .section-badge {
+        display: block;
+        text-align: center;
+    }
+
+    .about-stats {
+        justify-content: center;
     }
 }
 
