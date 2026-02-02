@@ -1825,9 +1825,116 @@ ul {
     }
 
     .plan-card {
-        min-width: 85%;
+        min-width: 75%;
+        max-width: 280px;
         scroll-snap-align: center;
         margin-bottom: 0;
+        aspect-ratio: 1 / 1;
+        display: flex;
+        flex-direction: column;
+        padding: 12px;
+        overflow: hidden;
+    }
+
+    /* Large image filling top area on mobile */
+    .plan-card .plan-image-wrapper {
+        display: block;
+        height: 55%;
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 0 0 10px 0;
+        flex-shrink: 0;
+    }
+
+    .plan-card .plan-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .plan-card .plan-description {
+        display: none;
+    }
+
+    .plan-card .plan-features {
+        display: block;
+        margin: 0 0 8px 0;
+        padding: 0;
+        font-size: 9px;
+        line-height: 1.4;
+        color: var(--gray-500);
+    }
+
+    .plan-card .plan-features .feature {
+        display: inline;
+        margin: 0;
+        padding: 0;
+    }
+
+    .plan-card .plan-features .feature::after {
+        content: " • ";
+        color: var(--gray-400);
+    }
+
+    .plan-card .plan-features .feature:last-child::after {
+        content: "";
+    }
+
+    .plan-card .plan-features .feature-icon {
+        display: none;
+    }
+
+    .plan-card .plan-features .feature span {
+        font-size: 9px;
+    }
+
+    .plan-card .plan-info {
+        display: none;
+    }
+
+    .plan-card .plan-content {
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .plan-card .plan-name {
+        font-size: 16px;
+        margin-bottom: 4px;
+    }
+
+    /* Smaller price on mobile */
+    .plan-card .plan-price {
+        margin-bottom: 8px;
+    }
+
+    .plan-card .plan-price .price-currency {
+        font-size: 14px;
+    }
+
+    .plan-card .plan-price .price-value {
+        font-size: 20px;
+    }
+
+    .plan-card .plan-price .price-period {
+        font-size: 12px;
+    }
+
+    .plan-card .btn-block {
+        margin-top: auto;
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+
+    /* Hide plan badge on mobile */
+    .plan-card .plan-badge {
+        display: none;
+    }
+
+    .plan-ribbon {
+        display: none;
     }
 
     .mobile-menu {
@@ -2127,6 +2234,12 @@ ul {
         grid-template-columns: 1fr;
         gap: 32px;
         text-align: center;
+    }
+
+    /* Hide testimonials and about sections on mobile */
+    .testimonials,
+    .about {
+        display: none !important;
     }
 }
 

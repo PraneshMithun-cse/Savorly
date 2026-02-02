@@ -321,68 +321,70 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================
     const isMobile = () => window.innerWidth <= 768;
 
-    const createAutoSlider = (containerSelector, interval = 3000) => {
+    const createSmoothSlider = (containerSelector, speed = 2000) => {
         const container = document.querySelector(containerSelector);
         if (!container) return;
 
+        let currentIndex = 0;
         let autoScrollInterval;
-        let isUserInteracting = false;
+        let isPaused = false;
+
+        const getItems = () => container.children;
+
+        const scrollToIndex = (index) => {
+            const items = getItems();
+            if (items.length === 0) return;
+
+            // Loop back to start
+            if (index >= items.length) {
+                currentIndex = 0;
+                container.scrollTo({ left: 0, behavior: 'smooth' });
+                return;
+            }
+
+            const item = items[index];
+            if (item) {
+                const scrollPosition = item.offsetLeft - (container.clientWidth - item.offsetWidth) / 2;
+                container.scrollTo({ left: scrollPosition, behavior: 'smooth' });
+            }
+        };
 
         const startAutoScroll = () => {
             if (!isMobile()) return;
 
+            stopAutoScroll();
             autoScrollInterval = setInterval(() => {
-                if (isUserInteracting) return;
-
-                const scrollWidth = container.scrollWidth;
-                const clientWidth = container.clientWidth;
-                const currentScroll = container.scrollLeft;
-
-                // Calculate next scroll position
-                const itemWidth = container.firstElementChild?.offsetWidth || clientWidth * 0.8;
-                let nextScroll = currentScroll + itemWidth + 16; // 16 is the gap
-
-                // If we've reached the end, loop back to start
-                if (nextScroll >= scrollWidth - clientWidth) {
-                    container.scrollTo({ left: 0, behavior: 'smooth' });
-                } else {
-                    container.scrollTo({ left: nextScroll, behavior: 'smooth' });
-                }
-            }, interval);
+                if (isPaused) return;
+                currentIndex++;
+                scrollToIndex(currentIndex);
+            }, speed);
         };
 
         const stopAutoScroll = () => {
-            clearInterval(autoScrollInterval);
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
         };
 
         // Pause on user interaction
         container.addEventListener('touchstart', () => {
-            isUserInteracting = true;
-        });
+            isPaused = true;
+        }, { passive: true });
 
         container.addEventListener('touchend', () => {
             setTimeout(() => {
-                isUserInteracting = false;
-            }, 2000); // Resume after 2 seconds of no interaction
-        });
+                isPaused = false;
+            }, 3000);
+        }, { passive: true });
 
-        container.addEventListener('mouseenter', () => {
-            isUserInteracting = true;
-        });
-
-        container.addEventListener('mouseleave', () => {
-            isUserInteracting = false;
-        });
-
-        // Start/stop based on screen size
-        const handleResize = () => {
+        // Handle resize
+        window.addEventListener('resize', () => {
             stopAutoScroll();
             if (isMobile()) {
                 startAutoScroll();
             }
-        };
-
-        window.addEventListener('resize', handleResize);
+        });
 
         // Initial start
         if (isMobile()) {
@@ -390,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Initialize auto-sliders for features and gallery
-    createAutoSlider('.features-grid', 250); // Slide every 0.25 seconds
-    createAutoSlider('.gallery-grid', 250);  // Slide every 0.25 seconds
+    // Initialize smooth sliders for features and gallery
+    createSmoothSlider('.features-grid', 2000); // Slide every 2 seconds
+    createSmoothSlider('.gallery-grid', 2500);  // Slide every 2.5 seconds
 });
