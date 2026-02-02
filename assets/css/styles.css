@@ -1826,14 +1826,14 @@ ul {
 
     .plan-card {
         min-width: 85%;
-        max-width: 320px;
+        max-width: 340px;
         scroll-snap-align: center;
         margin-bottom: 0;
-        min-height: 420px;
+        min-height: 480px;
         height: auto;
         display: flex;
         flex-direction: column;
-        padding: 16px;
+        padding: 20px;
         overflow: visible;
     }
 
