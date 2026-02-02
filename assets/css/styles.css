@@ -1825,14 +1825,14 @@ ul {
     }
 
     .plan-card {
-        min-width: 75%;
-        max-width: 280px;
+        min-width: 80%;
+        max-width: 300px;
         scroll-snap-align: center;
         margin-bottom: 0;
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 4 / 5;
         display: flex;
         flex-direction: column;
-        padding: 12px;
+        padding: 16px;
         overflow: hidden;
     }
 
@@ -1859,11 +1859,11 @@ ul {
 
     .plan-card .plan-features {
         display: block;
-        margin: 0 0 8px 0;
+        margin: 0 0 12px 0;
         padding: 0;
-        font-size: 9px;
-        line-height: 1.4;
-        color: var(--gray-500);
+        font-size: 11px;
+        line-height: 1.5;
+        color: var(--gray-600);
     }
 
     .plan-card .plan-features .feature {
@@ -1901,8 +1901,9 @@ ul {
     }
 
     .plan-card .plan-name {
-        font-size: 16px;
-        margin-bottom: 4px;
+        font-size: 20px;
+        margin-bottom: 6px;
+        font-weight: 700;
     }
 
     /* Smaller price on mobile */
@@ -1911,21 +1912,23 @@ ul {
     }
 
     .plan-card .plan-price .price-currency {
-        font-size: 14px;
+        font-size: 18px;
     }
 
     .plan-card .plan-price .price-value {
-        font-size: 20px;
+        font-size: 28px;
+        font-weight: 700;
     }
 
     .plan-card .plan-price .price-period {
-        font-size: 12px;
+        font-size: 14px;
     }
 
     .plan-card .btn-block {
         margin-top: auto;
-        padding: 10px 16px;
-        font-size: 14px;
+        padding: 14px 20px;
+        font-size: 16px;
+        font-weight: 600;
     }
 
     /* Hide plan badge on mobile */
@@ -2156,13 +2159,13 @@ ul {
     }
 
     .card-1 {
-        left: -10px;
-        top: 10%;
+        left: 5%;
+        top: 25%;
     }
 
     .card-2 {
-        right: -10px;
-        bottom: 10%;
+        right: 5%;
+        bottom: 25%;
     }
 
     .plans,
