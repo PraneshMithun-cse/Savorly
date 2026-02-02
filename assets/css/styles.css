@@ -1825,15 +1825,16 @@ ul {
     }
 
     .plan-card {
-        min-width: 80%;
-        max-width: 300px;
+        min-width: 85%;
+        max-width: 320px;
         scroll-snap-align: center;
         margin-bottom: 0;
-        aspect-ratio: 4 / 5;
+        min-height: 420px;
+        height: auto;
         display: flex;
         flex-direction: column;
         padding: 16px;
-        overflow: hidden;
+        overflow: visible;
     }
 
     /* Large image filling top area on mobile */
