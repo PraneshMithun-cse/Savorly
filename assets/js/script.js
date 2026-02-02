@@ -317,82 +317,73 @@ document.addEventListener('DOMContentLoaded', () => {
     document.head.appendChild(style);
 
     // ============================================
-    // AUTO-SLIDING FOR MOBILE SECTIONS
-    // ============================================
-    const isMobile = () => window.innerWidth <= 768;
-
-    const createSmoothSlider = (containerSelector, speed = 2000) => {
+    const initMarquee = (containerSelector) => {
         const container = document.querySelector(containerSelector);
         if (!container) return;
 
-        let currentIndex = 0;
-        let autoScrollInterval;
-        let isPaused = false;
+        const isMobile = () => window.innerWidth <= 768;
+        let isInitialized = false;
 
-        const getItems = () => container.children;
+        const setup = () => {
+            if (isMobile() && !isInitialized) {
+                // Create marquee wrapper
+                const marqueeContent = document.createElement('div');
+                marqueeContent.className = 'marquee-content';
 
-        const scrollToIndex = (index) => {
-            const items = getItems();
-            if (items.length === 0) return;
+                // Move all children to wrapper
+                const children = Array.from(container.children);
+                children.forEach(child => marqueeContent.appendChild(child));
 
-            // Loop back to start
-            if (index >= items.length) {
-                currentIndex = 0;
-                container.scrollTo({ left: 0, behavior: 'smooth' });
-                return;
-            }
+                // Clone children for seamless loop
+                children.forEach(child => {
+                    const clone = child.cloneNode(true);
+                    marqueeContent.appendChild(clone);
+                });
 
-            const item = items[index];
-            if (item) {
-                const scrollPosition = item.offsetLeft - (container.clientWidth - item.offsetWidth) / 2;
-                container.scrollTo({ left: scrollPosition, behavior: 'smooth' });
-            }
-        };
-
-        const startAutoScroll = () => {
-            if (!isMobile()) return;
-
-            stopAutoScroll();
-            autoScrollInterval = setInterval(() => {
-                if (isPaused) return;
-                currentIndex++;
-                scrollToIndex(currentIndex);
-            }, speed);
-        };
-
-        const stopAutoScroll = () => {
-            if (autoScrollInterval) {
-                clearInterval(autoScrollInterval);
-                autoScrollInterval = null;
+                container.appendChild(marqueeContent);
+                isInitialized = true;
+            } else if (!isMobile() && isInitialized) {
+                // Cleanup for desktop
+                const marqueeContent = container.querySelector('.marquee-content');
+                if (marqueeContent) {
+                    const originalCount = marqueeContent.children.length / 2;
+                    const originalChildren = Array.from(marqueeContent.children).slice(0, originalCount);
+                    originalChildren.forEach(child => container.appendChild(child));
+                    marqueeContent.remove();
+                }
+                isInitialized = false;
             }
         };
 
-        // Pause on user interaction
+        // Initial setup
+        setup();
+
+        // Handle resize with debounce
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(setup, 150);
+        });
+
+        // Pause on touch
         container.addEventListener('touchstart', () => {
-            isPaused = true;
+            const marqueeContent = container.querySelector('.marquee-content');
+            if (marqueeContent) {
+                marqueeContent.style.animationPlayState = 'paused';
+            }
         }, { passive: true });
 
         container.addEventListener('touchend', () => {
-            setTimeout(() => {
-                isPaused = false;
-            }, 3000);
-        }, { passive: true });
-
-        // Handle resize
-        window.addEventListener('resize', () => {
-            stopAutoScroll();
-            if (isMobile()) {
-                startAutoScroll();
+            const marqueeContent = container.querySelector('.marquee-content');
+            if (marqueeContent) {
+                setTimeout(() => {
+                    marqueeContent.style.animationPlayState = 'running';
+                }, 2000);
             }
-        });
-
-        // Initial start
-        if (isMobile()) {
-            startAutoScroll();
-        }
+        }, { passive: true });
     };
 
-    // Initialize smooth sliders for features and gallery
-    createSmoothSlider('.features-grid', 2000); // Slide every 2 seconds
-    createSmoothSlider('.gallery-grid', 2500);  // Slide every 2.5 seconds
+    // Initialize marquees for features and gallery
+    initMarquee('.features-grid');
+    initMarquee('.gallery-grid');
 });
