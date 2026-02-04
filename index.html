@@ -17,13 +17,28 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="#" class="logo"><img src="assets/images/savourly-logo-new.png" alt="Savourly" class="logo-img"></a>
+            <div class="logo-location">
+                <a href="#" class="logo"><img src="assets/images/savourly-logo-new.png" alt="Savourly"
+                        class="logo-img"></a>
+                <div class="location-trigger" id="locationTrigger">
+                    <svg class="location-pin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00C9A7"
+                        stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    <span class="location-text" id="locationText">Select Location</span>
+                    <svg class="location-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </div>
+            </div>
             <ul class="nav-links" id="navLinks">
                 <li><a href="#home" class="nav-link active">Home</a></li>
                 <li><a href="#plans" class="nav-link">Meal Plans</a></li>
                 <li><a href="#subscribe" class="nav-link">Subscribe & Save</a></li>
                 <li><a href="#about" class="nav-link">About Us</a></li>
-                <li><a href="#" class="nav-link">Consultant</a></li>
+                <li><a href="consultant.html" class="nav-link">Consultant</a></li>
             </ul>
             <div class="nav-actions">
                 <button class="cart-btn desktop-cart" id="cartBtn">
@@ -34,7 +49,7 @@
                     </svg>
                     <span class="cart-count" id="cartCount">0</span>
                 </button>
-                <a href="#" class="btn btn-outline desktop-only">Login</a>
+                <a href="login.html" class="btn btn-outline desktop-only">Login</a>
 
                 <!-- Mobile Only Actions -->
                 <button class="cart-btn mobile-cart-trigger" id="mobileNavbarCartBtn">
@@ -55,9 +70,9 @@
             <li><a href="#plans" class="mobile-nav-link">Meal Plans</a></li>
             <li><a href="#subscribe" class="mobile-nav-link">Subscribe & Save</a></li>
             <li><a href="#about" class="mobile-nav-link">About Us</a></li>
-            <li><a href="#" class="mobile-nav-link">Consultant</a></li>
+            <li><a href="consultant.html" class="mobile-nav-link">Consultant</a></li>
             <li class="mobile-nav-actions">
-                <a href="#" class="btn btn-outline">Login</a>
+                <a href="login.html" class="btn btn-outline">Login</a>
             </li>
         </ul>
     </div>
@@ -536,14 +551,7 @@
                     <p class="about-text">Founded in 2023, we've helped thousands of people transform their eating
                         habits with our premium meal plans. Every meal is prepared fresh daily using locally-sourced,
                         organic ingredients.</p>
-                    <div class="about-stats">
-                        <div class="about-stat"><span class="stat-number">50K+</span><span class="stat-label">Happy
-                                Customers</span></div>
-                        <div class="about-stat"><span class="stat-number">100+</span><span class="stat-label">Unique
-                                Recipes</span></div>
-                        <div class="about-stat"><span class="stat-number">4.9</span><span class="stat-label">Star
-                                Rating</span></div>
-                    </div>
+
                 </div>
                 <div class="about-image">
                     <img src="assets/images/power-protein-meal.jpg" alt="Power Protein Meal">
@@ -569,7 +577,7 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-brand"><a href="#" class="logo"><span class="logo-icon">🥗</span><span
+                <div class="footer-brand"><a href="#" class="logo"><span class="logo-icon"></span><span
                             class="logo-text">Savourly</span></a>
                     <p class="footer-tagline">Transforming lives through nutrition since 2020.</p>
                 </div>
@@ -632,6 +640,131 @@
                 <span class="total-amount" id="totalAmount">₹0</span>
             </div>
             <button class="btn btn-primary btn-block checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Location Modal -->
+    <div class="location-modal-overlay" id="locationModal">
+        <div class="location-modal">
+            <div class="location-modal-header">
+                <button class="location-modal-close" id="closeLocationModal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <h2>Select a location</h2>
+            </div>
+
+            <div class="location-modal-search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                </svg>
+                <input type="text" placeholder="Search for area, street name..." id="addressSearch">
+            </div>
+
+            <div class="location-modal-content">
+                <!-- Use Current Location -->
+                <div class="location-option current-location" id="useCurrentLocation">
+                    <div class="option-icon gps">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M12 2v2M12 20v2M2 12h2M20 12h2" />
+                        </svg>
+                    </div>
+                    <div class="option-text">
+                        <strong>Use current location</strong>
+                        <span id="currentLocationText">Detecting...</span>
+                    </div>
+                    <svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6" />
+                    </svg>
+                </div>
+
+                <!-- Add Address -->
+                <div class="location-option add-address" id="addAddressBtn">
+                    <div class="option-icon add">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                    </div>
+                    <div class="option-text">
+                        <strong>Add Address</strong>
+                    </div>
+                    <svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6" />
+                    </svg>
+                </div>
+
+                <!-- Saved Addresses Section -->
+                <div class="saved-addresses-section">
+                    <h3>SAVED ADDRESSES</h3>
+                    <div class="saved-addresses-list" id="savedAddressesList">
+                        <!-- Addresses will be populated by JavaScript -->
+                        <div class="no-addresses" id="noAddresses">
+                            <p>No saved addresses yet. Add your first address!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Address Modal -->
+    <div class="add-address-modal-overlay" id="addAddressModal">
+        <div class="add-address-modal">
+            <div class="location-modal-header">
+                <button class="location-modal-close" id="closeAddAddressModal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <h2>Add New Address</h2>
+            </div>
+
+            <form class="add-address-form" id="addAddressForm">
+                <div class="form-group">
+                    <label>Address Label</label>
+                    <div class="label-options">
+                        <button type="button" class="label-btn active" data-label="Home">🏠 Home</button>
+                        <button type="button" class="label-btn" data-label="Work">💼 Work</button>
+                        <button type="button" class="label-btn" data-label="Other">📍 Other</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="addressLine1">Complete Address *</label>
+                    <input type="text" id="addressLine1" placeholder="House no., Building, Street" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="addressLine2">Area / Locality *</label>
+                    <input type="text" id="addressLine2" placeholder="Area, Locality" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="addressCity">City *</label>
+                        <input type="text" id="addressCity" placeholder="City" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addressPincode">Pincode *</label>
+                        <input type="text" id="addressPincode" placeholder="Pincode" required maxlength="6">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="addressPhone">Phone Number *</label>
+                    <input type="tel" id="addressPhone" placeholder="+91 XXXXX XXXXX" required>
+                </div>
+
+                <button type="submit" class="save-address-btn">Save Address</button>
+            </form>
         </div>
     </div>
 

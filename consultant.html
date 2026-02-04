@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expert Consultation | Savourly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/consultant.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <img src="assets/images/savourly-logo-new.png" alt="Savourly">
+            </a>
+            <a href="index.html" class="back-btn">← Back to Home</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-layout">
+                <div class="hero-text">
+                    <span class="badge">🏆 #1 Rated Nutritionist</span>
+                    <h1>Transform Your Body in <span class="highlight">120 Days</span></h1>
+                    <p>Get personalized nutrition guidance from India's top certified nutritionist. Join thousands
+                        who've achieved their dream physique.</p>
+
+                    <div class="stats-row">
+                        <div class="stat">
+                            <strong>15K+</strong>
+                            <span>Lives Transformed</span>
+                        </div>
+                        <div class="stat">
+                            <strong>98%</strong>
+                            <span>Success Rate</span>
+                        </div>
+                        <div class="stat">
+                            <strong>12+</strong>
+                            <span>Years Experience</span>
+                        </div>
+                    </div>
+
+                    <a href="#programs" class="cta-btn">View Programs →</a>
+                </div>
+
+                <div class="hero-card">
+                    <img src="assets/images/dr-rajan-sharma.png" alt="Dr. Rajan Sharma" class="doctor-img">
+                    <div class="doctor-details">
+                        <h3>Dr. Rajan Sharma</h3>
+                        <p>M.D. Nutrition & Dietetics</p>
+                        <div class="tags">
+                            <span>ICMR Certified</span>
+                            <span>IDA Member</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programs Section -->
+    <section class="programs" id="programs">
+        <div class="container">
+            <div class="section-header">
+                <span class="badge">Choose Your Journey</span>
+                <h2>Transformation Programs</h2>
+                <p>Select the program that fits your goals</p>
+            </div>
+
+            <div class="programs-row">
+                <!-- 90 Days -->
+                <div class="program-card">
+                    <div class="program-badge">Popular</div>
+                    <div class="program-days">
+                        <strong>90</strong>
+                        <span>DAYS</span>
+                    </div>
+                    <h3>Quick Transform</h3>
+                    <p class="tagline">Visible results in 3 months</p>
+                    <div class="price">
+                        <span class="currency">₹</span>
+                        <span class="amount">4,999</span>
+                    </div>
+                    <ul class="features">
+                        <li>✓ 6 Personal Zoom Sessions</li>
+                        <li>✓ Custom Diet Plan</li>
+                        <li>✓ Weekly Progress Tracking</li>
+                        <li>✓ WhatsApp Support</li>
+                        <li>✓ Recipe Library Access</li>
+                    </ul>
+                    <button class="book-btn" onclick="bookProgram('90-day')">Book Consultation →</button>
+                </div>
+
+                <!-- 120 Days -->
+                <div class="program-card featured">
+                    <div class="program-badge best">Best Value</div>
+                    <div class="program-days">
+                        <strong>120</strong>
+                        <span>DAYS</span>
+                    </div>
+                    <h3>Complete Transform</h3>
+                    <p class="tagline">Full body & lifestyle change</p>
+                    <div class="price">
+                        <span class="currency">₹</span>
+                        <span class="amount">7,499</span>
+                        <span class="savings">Save ₹2,500</span>
+                    </div>
+                    <ul class="features">
+                        <li>✓ 12 Personal Zoom Sessions</li>
+                        <li>✓ Premium Custom Diet Plan</li>
+                        <li>✓ Daily Progress Tracking</li>
+                        <li>✓ Priority WhatsApp Support</li>
+                        <li>✓ Full Recipe Library + Meal Prep</li>
+                        <li>✓ Workout Guidance</li>
+                        <li>✓ 30-Day Free Extension</li>
+                    </ul>
+                    <button class="book-btn primary" onclick="bookProgram('120-day')">Book Consultation →</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2>How Zoom Sessions Work</h2>
+            </div>
+            <div class="steps-row">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-icon">📅</div>
+                    <h4>Book Your Slot</h4>
+                    <p>Choose a convenient time</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-icon">📹</div>
+                    <h4>Join Zoom Call</h4>
+                    <p>Connect with Dr. Rajan</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-icon">📋</div>
+                    <h4>Get Your Plan</h4>
+                    <p>Personalized diet & workout</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-icon">💪</div>
+                    <h4>Transform</h4>
+                    <p>Follow & see results</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <h2>Success Stories</h2>
+            </div>
+            <div class="testimonials-row">
+                <div class="testimonial">
+                    <div class="stars">⭐⭐⭐⭐⭐</div>
+                    <p>"Lost 18kg in 90 days! Dr. Rajan's personalized approach made all the difference."</p>
+                    <div class="author">
+                        <div class="avatar">AK</div>
+                        <div>
+                            <strong>Amit Kumar</strong>
+                            <span>Lost 18kg in 90 days</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial">
+                    <div class="stars">⭐⭐⭐⭐⭐</div>
+                    <p>"Best investment for my health. The 120-day program completely transformed my life."</p>
+                    <div class="author">
+                        <div class="avatar">PS</div>
+                        <div>
+                            <strong>Priya Singh</strong>
+                            <span>Lost 25kg in 120 days</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial">
+                    <div class="stars">⭐⭐⭐⭐⭐</div>
+                    <p>"Flexible Zoom timings and WhatsApp support were perfect. Gained 8kg muscle mass."</p>
+                    <div class="author">
+                        <div class="avatar">RV</div>
+                        <div>
+                            <strong>Rahul Verma</strong>
+                            <span>Gained 8kg muscle</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Start Your Transformation?</h2>
+            <p>Book your free 15-minute discovery call today</p>
+            <a href="#programs" class="cta-btn white">Book Free Call →</a>
+            <div class="guarantee">🛡️ 100% Money-Back Guarantee</div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 Savourly. All rights reserved.</p>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="bookingModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <h2>📹 Book Your Consultation</h2>
+            <p id="modalProgramName">90-Day Quick Transform Program</p>
+            <form id="bookingForm">
+                <label>Full Name</label>
+                <input type="text" id="userName" placeholder="Enter your name" required>
+
+                <label>Email Address</label>
+                <input type="email" id="userEmail" placeholder="Enter your email" required>
+
+                <label>Phone Number</label>
+                <input type="tel" id="userPhone" placeholder="Enter your phone" required>
+
+                <label>Preferred Time</label>
+                <select id="preferredTime" required>
+                    <option value="">Select time slot</option>
+                    <option value="morning">Morning (9 AM - 12 PM)</option>
+                    <option value="afternoon">Afternoon (12 PM - 4 PM)</option>
+                    <option value="evening">Evening (4 PM - 8 PM)</option>
+                </select>
+
+                <button type="submit" class="submit-btn">Confirm Booking ✓</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function bookProgram(type) {
+            const modal = document.getElementById('bookingModal');
+            const name = document.getElementById('modalProgramName');
+            name.textContent = type === '90-day'
+                ? '90-Day Quick Transform - ₹4,999'
+                : '120-Day Complete Transform - ₹7,499';
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('bookingModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('bookingModal').addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) closeModal();
+        });
+
+        document.getElementById('bookingForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('userName').value;
+            alert(`🎉 Booking Confirmed!\n\nThank you, ${name}! We'll send you a Zoom link within 24 hours.`);
+            closeModal();
+            e.target.reset();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
+</body>
+
+</html>

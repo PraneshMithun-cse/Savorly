@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Savourly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00C9A7;
+            --primary-dark: #00b396;
+            --bg: #0f0f0f;
+            --card: #1a1a1a;
+            --card-hover: #222;
+            --border: #2a2a2a;
+            --text: #fff;
+            --text-muted: #888;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 260px;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 12px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .logo img {
+            height: 36px;
+        }
+
+        .logo span {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .nav-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background: var(--card-hover);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 50px;
+        }
+
+        /* Main Content */
+        .main {
+            margin-left: 260px;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .refresh-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: var(--card-hover);
+            border-color: var(--primary);
+        }
+
+        .refresh-btn.loading svg {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .time-badge {
+            padding: 8px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon.green {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        .stat-icon.blue {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--info);
+        }
+
+        .stat-icon.orange {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .stat-icon.teal {
+            background: rgba(0, 201, 167, 0.15);
+            color: var(--primary);
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .stat-trend.up {
+            color: var(--success);
+        }
+
+        .stat-trend.down {
+            color: var(--danger);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Grid Layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h2 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .card-badge {
+            padding: 4px 10px;
+            background: rgba(0, 201, 167, 0.15);
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 50px;
+        }
+
+        .card-body {
+            padding: 16px 24px;
+        }
+
+        /* Orders Table */
+        .orders-table {
+            width: 100%;
+        }
+
+        .order-row {
+            display: flex;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+            gap: 16px;
+        }
+
+        .order-row:last-child {
+            border: none;
+        }
+
+        .order-id {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+            width: 90px;
+        }
+
+        .order-customer {
+            flex: 1;
+        }
+
+        .order-customer strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .order-customer span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .order-items {
+            font-size: 13px;
+            color: var(--text-muted);
+            width: 120px;
+        }
+
+        .order-amount {
+            font-size: 14px;
+            font-weight: 700;
+            width: 80px;
+            text-align: right;
+        }
+
+        .order-status {
+            width: 100px;
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .status-badge.preparing {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--info);
+        }
+
+        .status-badge.delivered {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        .status-badge.cancelled {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .order-time {
+            font-size: 12px;
+            color: var(--text-muted);
+            width: 70px;
+            text-align: right;
+        }
+
+        /* Delivery Stats */
+        .delivery-stat {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .delivery-stat:last-child {
+            border: none;
+        }
+
+        .delivery-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .delivery-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .delivery-label {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .delivery-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        /* Feedback */
+        .feedback-item {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .feedback-item:last-child {
+            border: none;
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .feedback-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feedback-avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .feedback-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .feedback-stars {
+            color: #fbbf24;
+            letter-spacing: 2px;
+        }
+
+        .feedback-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Help Section */
+        .help-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .help-item:hover {
+            padding-left: 8px;
+        }
+
+        .help-item:last-child {
+            border: none;
+        }
+
+        .help-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--card-hover);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .help-text {
+            flex: 1;
+        }
+
+        .help-text strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .help-text span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Live Indicator */
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 16px 8px;
+            }
+
+            .logo span,
+            .nav-item span,
+            .nav-badge {
+                display: none;
+            }
+
+            .nav-item {
+                justify-content: center;
+                padding: 12px;
+            }
+
+            .main {
+                margin-left: 70px;
+                padding: 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .order-items,
+            .order-time {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <img src="assets/images/savourly-logo-new.png" alt="Savourly">
+            <span>Admin</span>
+        </div>
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                    <polyline points="9,22 9,12 15,12 15,22" />
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 01-8 0" />
+                </svg>
+                <span>Orders</span>
+                <span class="nav-badge">12</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="3" width="15" height="13" />
+                    <polygon points="16,8 20,8 23,11 23,16 16,16 16,8" />
+                    <circle cx="5.5" cy="18.5" r="2.5" />
+                    <circle cx="18.5" cy="18.5" r="2.5" />
+                </svg>
+                <span>Delivery</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                    <path d="M16 3.13a4 4 0 010 7.75" />
+                </svg>
+                <span>Customers</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                </svg>
+                <span>Feedback</span>
+                <span class="nav-badge">3</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                <span>Help</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                </svg>
+                <span>Settings</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Header -->
+        <header class="header">
+            <h1>Dashboard</h1>
+            <div class="header-actions">
+                <div class="time-badge" id="currentTime">--:--:-- AM</div>
+                <button class="refresh-btn" id="refreshBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23,4 23,10 17,10" />
+                        <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
+                    </svg>
+                    Refresh
+                </button>
+                <div class="live-dot"></div>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23" />
+                            <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                        </svg>
+                    </div>
+                    <div class="stat-trend up">↑ 12.5%</div>
+                </div>
+                <div class="stat-value" id="totalRevenue">₹1,24,580</div>
+                <div class="stat-label">Total Revenue Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon blue">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                            <path d="M16 10a4 4 0 01-8 0" />
+                        </svg>
+                    </div>
+                    <div class="stat-trend up">↑ 8.2%</div>
+                </div>
+                <div class="stat-value" id="totalOrders">156</div>
+                <div class="stat-label">Total Orders Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon orange">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="1" y="3" width="15" height="13" />
+                            <polygon points="16,8 20,8 23,11 23,16 16,16 16,8" />
+                            <circle cx="5.5" cy="18.5" r="2.5" />
+                            <circle cx="18.5" cy="18.5" r="2.5" />
+                        </svg>
+                    </div>
+                    <div class="stat-trend down">↓ 2.1%</div>
+                </div>
+                <div class="stat-value" id="avgDelivery">28 min</div>
+                <div class="stat-label">Avg Delivery Time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon teal">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                            <path d="M16 3.13a4 4 0 010 7.75" />
+                        </svg>
+                    </div>
+                    <div class="stat-trend up">↑ 15.3%</div>
+                </div>
+                <div class="stat-value" id="newCustomers">42</div>
+                <div class="stat-label">New Customers Today</div>
+            </div>
+        </div>
+
+        <!-- Orders & Delivery Stats -->
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Recent Orders</h2>
+                    <span class="card-badge">Live</span>
+                </div>
+                <div class="card-body">
+                    <div class="orders-table" id="ordersTable">
+                        <!-- Orders populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Delivery Stats</h2>
+                </div>
+                <div class="card-body">
+                    <div class="delivery-stat">
+                        <div class="delivery-info">
+                            <div class="delivery-icon" style="background:rgba(34,197,94,0.15)">🚴</div>
+                            <span class="delivery-label">Active Deliveries</span>
+                        </div>
+                        <span class="delivery-value" id="activeDeliveries">18</span>
+                    </div>
+                    <div class="delivery-stat">
+                        <div class="delivery-info">
+                            <div class="delivery-icon" style="background:rgba(59,130,246,0.15)">✅</div>
+                            <span class="delivery-label">Completed Today</span>
+                        </div>
+                        <span class="delivery-value" id="completedDeliveries">134</span>
+                    </div>
+                    <div class="delivery-stat">
+                        <div class="delivery-info">
+                            <div class="delivery-icon" style="background:rgba(245,158,11,0.15)">⏳</div>
+                            <span class="delivery-label">Pending Pickup</span>
+                        </div>
+                        <span class="delivery-value" id="pendingPickup">4</span>
+                    </div>
+                    <div class="delivery-stat">
+                        <div class="delivery-info">
+                            <div class="delivery-icon" style="background:rgba(239,68,68,0.15)">❌</div>
+                            <span class="delivery-label">Cancelled</span>
+                        </div>
+                        <span class="delivery-value" id="cancelledOrders">2</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback & Help -->
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Recent Feedback</h2>
+                    <span class="card-badge">3 New</span>
+                </div>
+                <div class="card-body" id="feedbackList">
+                    <!-- Feedback populated by JS -->
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Quick Actions</h2>
+                </div>
+                <div class="card-body">
+                    <div class="help-item">
+                        <div class="help-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                                <polyline points="14,2 14,8 20,8" />
+                            </svg>
+                        </div>
+                        <div class="help-text">
+                            <strong>Export Orders</strong>
+                            <span>Download today's orders as CSV</span>
+                        </div>
+                    </div>
+                    <div class="help-item">
+                        <div class="help-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                        </div>
+                        <div class="help-text">
+                            <strong>Send Notifications</strong>
+                            <span>Broadcast to all customers</span>
+                        </div>
+                    </div>
+                    <div class="help-item">
+                        <div class="help-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+                            </svg>
+                        </div>
+                        <div class="help-text">
+                            <strong>Manage Settings</strong>
+                            <span>Store hours, menu, pricing</span>
+                        </div>
+                    </div>
+                    <div class="help-item">
+                        <div class="help-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg>
+                        </div>
+                        <div class="help-text">
+                            <strong>Help & Support</strong>
+                            <span>Contact Savourly support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Mock Data - Replace with real API later
+        const mockOrders = [
+            { id: '#ORD-2847', customer: 'Priya Sharma', phone: '+91 98xxx', items: '2 Meals + 1 Snack', amount: '₹847', status: 'preparing', time: '2 min' },
+            { id: '#ORD-2846', customer: 'Rahul Verma', phone: '+91 87xxx', items: '1 Meal Plan', amount: '₹599', status: 'pending', time: '5 min' },
+            { id: '#ORD-2845', customer: 'Anita Patel', phone: '+91 76xxx', items: '3 Meals', amount: '₹1,247', status: 'delivered', time: '12 min' },
+            { id: '#ORD-2844', customer: 'Karthik R', phone: '+91 99xxx', items: '2 Snacks', amount: '₹398', status: 'preparing', time: '8 min' },
+            { id: '#ORD-2843', customer: 'Deepa M', phone: '+91 88xxx', items: '1 Meal', amount: '₹449', status: 'delivered', time: '25 min' },
+            { id: '#ORD-2842', customer: 'Arjun K', phone: '+91 77xxx', items: '4 Meals', amount: '₹1,796', status: 'cancelled', time: '30 min' }
+        ];
+
+        const mockFeedback = [
+            { name: 'Sneha R', initials: 'SR', stars: 5, text: 'Amazing food quality! The portion size is perfect and delivery was super fast.' },
+            { name: 'Vikram S', initials: 'VS', stars: 4, text: 'Good variety of healthy options. Would love more South Indian choices.' },
+            { name: 'Meera K', initials: 'MK', stars: 5, text: 'Best meal delivery service in Chennai! Fresh ingredients every time.' }
+        ];
+
+        // Render Orders
+        function renderOrders() {
+            const table = document.getElementById('ordersTable');
+            table.innerHTML = mockOrders.map(o => `
+                <div class="order-row">
+                    <span class="order-id">${o.id}</span>
+                    <div class="order-customer">
+                        <strong>${o.customer}</strong>
+                        <span>${o.phone}</span>
+                    </div>
+                    <span class="order-items">${o.items}</span>
+                    <span class="order-amount">${o.amount}</span>
+                    <div class="order-status">
+                        <span class="status-badge ${o.status}">${o.status}</span>
+                    </div>
+                    <span class="order-time">${o.time} ago</span>
+                </div>
+            `).join('');
+        }
+
+        // Render Feedback
+        function renderFeedback() {
+            const list = document.getElementById('feedbackList');
+            list.innerHTML = mockFeedback.map(f => `
+                <div class="feedback-item">
+                    <div class="feedback-header">
+                        <div class="feedback-user">
+                            <div class="feedback-avatar">${f.initials}</div>
+                            <span class="feedback-name">${f.name}</span>
+                        </div>
+                        <span class="feedback-stars">${'★'.repeat(f.stars)}${'☆'.repeat(5 - f.stars)}</span>
+                    </div>
+                    <p class="feedback-text">${f.text}</p>
+                </div>
+            `).join('');
+        }
+
+        // Update Time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+
+        // Refresh Animation
+        document.getElementById('refreshBtn').addEventListener('click', function () {
+            this.classList.add('loading');
+            setTimeout(() => {
+                this.classList.remove('loading');
+                renderOrders();
+                renderFeedback();
+            }, 800);
+        });
+
+        // Init
+        renderOrders();
+        renderFeedback();
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+
+</html>

@@ -47,6 +47,235 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.style.overflow = '';
         });
     });
+    // ============================================
+    // LOCATION MODAL FUNCTIONALITY
+    // ============================================
+
+    const locationTrigger = document.getElementById('locationTrigger');
+    const locationModal = document.getElementById('locationModal');
+    const closeLocationModal = document.getElementById('closeLocationModal');
+    const useCurrentLocation = document.getElementById('useCurrentLocation');
+    const currentLocationText = document.getElementById('currentLocationText');
+    const addAddressBtn = document.getElementById('addAddressBtn');
+    const addAddressModal = document.getElementById('addAddressModal');
+    const closeAddAddressModal = document.getElementById('closeAddAddressModal');
+    const addAddressForm = document.getElementById('addAddressForm');
+    const savedAddressesList = document.getElementById('savedAddressesList');
+    const noAddresses = document.getElementById('noAddresses');
+    const locationText = document.getElementById('locationText');
+    const addressSearch = document.getElementById('addressSearch');
+
+    // Address storage
+    let savedAddresses = JSON.parse(localStorage.getItem('savourlyAddresses')) || [];
+    let selectedAddressLabel = 'Home';
+
+    // Open location modal
+    locationTrigger?.addEventListener('click', () => {
+        locationModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        detectCurrentLocation();
+        renderSavedAddresses();
+    });
+
+    // Close location modal
+    closeLocationModal?.addEventListener('click', () => {
+        locationModal.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+
+    // Close on overlay click
+    locationModal?.addEventListener('click', (e) => {
+        if (e.target === locationModal) {
+            locationModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+
+    // Detect current location
+    function detectCurrentLocation() {
+        if (navigator.geolocation) {
+            currentLocationText.textContent = 'Detecting...';
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    try {
+                        const { latitude, longitude } = position.coords;
+                        const response = await fetch(
+                            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+                        );
+                        const data = await response.json();
+                        const address = data.display_name || 'Location detected';
+                        currentLocationText.textContent = address;
+                        // Store for use
+                        window.currentGPSAddress = {
+                            full: address,
+                            city: data.address.city || data.address.town || data.address.village || 'Unknown',
+                            state: data.address.state || '',
+                            pincode: data.address.postcode || ''
+                        };
+                    } catch (error) {
+                        currentLocationText.textContent = 'Unable to detect location';
+                    }
+                },
+                (error) => {
+                    currentLocationText.textContent = 'Location access denied';
+                }
+            );
+        } else {
+            currentLocationText.textContent = 'Geolocation not supported';
+        }
+    }
+
+    // Use current location
+    useCurrentLocation?.addEventListener('click', () => {
+        if (window.currentGPSAddress) {
+            const shortAddress = window.currentGPSAddress.city;
+            locationText.textContent = shortAddress;
+            localStorage.setItem('savourlySelectedLocation', JSON.stringify({
+                type: 'gps',
+                display: shortAddress,
+                full: window.currentGPSAddress.full
+            }));
+            locationModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+
+    // Open add address modal
+    addAddressBtn?.addEventListener('click', () => {
+        addAddressModal.classList.add('active');
+        // Pre-fill city if GPS detected
+        if (window.currentGPSAddress) {
+            const cityInput = document.getElementById('addressCity');
+            const pincodeInput = document.getElementById('addressPincode');
+            if (cityInput) cityInput.value = window.currentGPSAddress.city;
+            if (pincodeInput && window.currentGPSAddress.pincode) pincodeInput.value = window.currentGPSAddress.pincode;
+        }
+    });
+
+    // Close add address modal
+    closeAddAddressModal?.addEventListener('click', () => {
+        addAddressModal.classList.remove('active');
+    });
+
+    // Label button selection
+    document.querySelectorAll('.label-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.label-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedAddressLabel = btn.dataset.label;
+        });
+    });
+
+    // Save new address
+    addAddressForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const newAddress = {
+            id: Date.now(),
+            label: selectedAddressLabel,
+            line1: document.getElementById('addressLine1').value,
+            line2: document.getElementById('addressLine2').value,
+            city: document.getElementById('addressCity').value,
+            pincode: document.getElementById('addressPincode').value,
+            phone: document.getElementById('addressPhone').value
+        };
+
+        savedAddresses.push(newAddress);
+        localStorage.setItem('savourlyAddresses', JSON.stringify(savedAddresses));
+
+        // Reset form
+        addAddressForm.reset();
+        document.querySelectorAll('.label-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('.label-btn[data-label="Home"]')?.classList.add('active');
+        selectedAddressLabel = 'Home';
+
+        // Close add modal, refresh list
+        addAddressModal.classList.remove('active');
+        renderSavedAddresses();
+    });
+
+    // Render saved addresses
+    function renderSavedAddresses() {
+        if (!savedAddressesList) return;
+
+        // Clear existing (except no-addresses div)
+        const existingCards = savedAddressesList.querySelectorAll('.saved-address-card');
+        existingCards.forEach(card => card.remove());
+
+        if (savedAddresses.length === 0) {
+            noAddresses.style.display = 'block';
+            return;
+        }
+
+        noAddresses.style.display = 'none';
+
+        savedAddresses.forEach(address => {
+            const card = document.createElement('div');
+            card.className = 'saved-address-card';
+            card.innerHTML = `
+                <div class="address-icon">${address.label === 'Home' ? '🏠' : address.label === 'Work' ? '💼' : '📍'}</div>
+                <div class="address-details">
+                    <div class="address-header">
+                        <span class="address-label">${address.label}</span>
+                    </div>
+                    <div class="address-text">${address.line1}, ${address.line2}, ${address.city}</div>
+                    <div class="address-phone">Phone: ${address.phone}</div>
+                    <div class="address-actions">
+                        <button class="address-action-btn edit-btn" data-id="${address.id}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg>
+                        </button>
+                        <button class="address-action-btn delete-btn" data-id="${address.id}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Select address on click
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.address-action-btn')) return;
+
+                const shortAddress = `${address.line2}, ${address.city}`;
+                locationText.textContent = address.label;
+                localStorage.setItem('savourlySelectedLocation', JSON.stringify({
+                    type: 'saved',
+                    id: address.id,
+                    display: address.label,
+                    full: `${address.line1}, ${address.line2}, ${address.city} - ${address.pincode}`
+                }));
+                locationModal.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+
+            // Delete button
+            card.querySelector('.delete-btn')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(e.currentTarget.dataset.id);
+                savedAddresses = savedAddresses.filter(a => a.id !== id);
+                localStorage.setItem('savourlyAddresses', JSON.stringify(savedAddresses));
+                renderSavedAddresses();
+            });
+
+            savedAddressesList.appendChild(card);
+        });
+    }
+
+    // Search addresses
+    addressSearch?.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const cards = savedAddressesList?.querySelectorAll('.saved-address-card');
+        cards?.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            card.style.display = text.includes(query) ? 'flex' : 'none';
+        });
+    });
+
+    // Load saved location on page load
+    const savedSelectedLocation = localStorage.getItem('savourlySelectedLocation');
+    if (savedSelectedLocation && locationText) {
+        const parsed = JSON.parse(savedSelectedLocation);
+        locationText.textContent = parsed.display || 'Select Location';
+    }
 
     // Active link on scroll - O(s) where s = sections
     const sections = document.querySelectorAll('section[id]');
@@ -197,13 +426,11 @@ document.addEventListener('DOMContentLoaded', () => {
     cartClose?.addEventListener('click', closeCart);
     cartOverlay?.addEventListener('click', closeCart);
 
-    // Checkout button
+    // Checkout button - redirect to cart page
     checkoutBtn?.addEventListener('click', () => {
         if (cart.length > 0) {
-            alert(`🎉 Thank you for your order!\n\nTotal: ₹${cart.reduce((sum, item) => sum + item.price, 0).toLocaleString('en-IN')}\n\nYou will receive a confirmation email shortly.`);
-            cart = [];
-            updateCartUI();
             closeCart();
+            window.location.href = 'cart.html';
         }
     });
 
