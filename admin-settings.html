@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | Savourly Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00C9A7;
+            --bg: #0f0f0f;
+            --card: #1a1a1a;
+            --card-hover: #222;
+            --border: #2a2a2a;
+            --text: #fff;
+            --text-muted: #888;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 260px;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 12px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .logo img {
+            height: 36px;
+        }
+
+        .logo span {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background: var(--card-hover);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .main {
+            margin-left: 260px;
+            padding: 24px;
+            max-width: 900px;
+        }
+
+        .header {
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .settings-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--card-hover);
+        }
+
+        .section-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .section-header p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .section-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            color: var(--text);
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .email-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .email-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .email-item span {
+            font-size: 14px;
+        }
+
+        .email-item .badge {
+            padding: 4px 10px;
+            background: rgba(0, 201, 167, 0.15);
+            color: var(--primary);
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .remove-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .add-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .add-row input {
+            flex: 1;
+        }
+
+        .add-btn {
+            padding: 14px 24px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-btn:hover {
+            background: #00b396;
+        }
+
+        .danger-zone {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .danger-zone .section-header {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .danger-zone .section-icon {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .danger-btn {
+            padding: 14px 24px;
+            background: var(--danger);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .danger-btn:hover {
+            background: #dc2626;
+        }
+
+        .warning-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .modal h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .modal p {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-btns button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .cancel-btn {
+            background: var(--card-hover);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .confirm-btn {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            background: var(--success);
+            color: #fff;
+            border-radius: 10px;
+            font-weight: 500;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 16px 8px;
+            }
+
+            .logo span,
+            .nav-item span {
+                display: none;
+            }
+
+            .nav-item {
+                justify-content: center;
+                padding: 12px;
+            }
+
+            .main {
+                margin-left: 70px;
+                padding: 16px;
+            }
+
+            .add-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="logo"><img src="assets/images/savourly-logo-new.png" alt="Savourly"><span>Admin</span></div>
+        <nav>
+            <a href="admin.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                    <polyline points="9,22 9,12 15,12 15,22" />
+                </svg><span>Dashboard</span></a>
+            <a href="admin-orders.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 01-8 0" />
+                </svg><span>Orders</span></a>
+            <a href="admin-customers.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                </svg><span>Customers</span></a>
+            <a href="admin-feedback.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                </svg><span>Feedback</span></a>
+            <a href="admin-settings.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+                </svg><span>Settings</span></a>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <header class="header">
+            <h1>Settings</h1>
+        </header>
+
+        <!-- Admin Authorization -->
+        <div class="settings-section">
+            <div class="section-header">
+                <div class="section-icon" style="background: rgba(0, 201, 167, 0.15);">🔐</div>
+                <div>
+                    <h2>Admin Authorization</h2>
+                    <p>Manage admin access emails</p>
+                </div>
+            </div>
+            <div class="section-body">
+                <div class="email-list" id="adminList">
+                    <div class="email-item">
+                        <span>admin@savourly.in <span class="badge">Owner</span></span>
+                        <button class="remove-btn" disabled>×</button>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Add Admin Email</label>
+                    <div class="add-row">
+                        <input type="email" id="adminEmail" placeholder="Enter email address">
+                        <button class="add-btn" onclick="addAdmin()">Add Admin</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delivery Partners -->
+        <div class="settings-section">
+            <div class="section-header">
+                <div class="section-icon" style="background: rgba(59, 130, 246, 0.15);">🚴</div>
+                <div>
+                    <h2>Delivery Partners</h2>
+                    <p>Manage delivery partner emails</p>
+                </div>
+            </div>
+            <div class="section-body">
+                <div class="email-list" id="deliveryList">
+                    <div class="email-item">
+                        <span>ravi.delivery@savourly.in</span>
+                        <button class="remove-btn" onclick="removeDelivery(this)">×</button>
+                    </div>
+                    <div class="email-item">
+                        <span>kumar.delivery@savourly.in</span>
+                        <button class="remove-btn" onclick="removeDelivery(this)">×</button>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Add Delivery Partner Email</label>
+                    <div class="add-row">
+                        <input type="email" id="deliveryEmail" placeholder="Enter email address">
+                        <button class="add-btn" onclick="addDelivery()">Add Partner</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="settings-section danger-zone">
+            <div class="section-header">
+                <div class="section-icon">⚠️</div>
+                <div>
+                    <h2>Danger Zone</h2>
+                    <p>Irreversible actions</p>
+                </div>
+            </div>
+            <div class="section-body">
+                <p class="warning-text">
+                    <strong>Clear All Data:</strong> This will permanently delete all orders, customers, and feedback
+                    data. This action cannot be undone.
+                </p>
+                <button class="danger-btn" onclick="showClearModal()">Clear All Data</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="clearModal">
+        <div class="modal">
+            <h3>⚠️ Clear All Data?</h3>
+            <p>This will permanently delete all orders, customers, and feedback. This action cannot be undone.</p>
+            <div class="modal-btns">
+                <button class="cancel-btn" onclick="hideModal()">Cancel</button>
+                <button class="confirm-btn" onclick="clearAllData()">Yes, Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">Changes saved successfully!</div>
+
+    <script>
+        // Admin emails
+        let admins = JSON.parse(localStorage.getItem('savourlyAdmins')) || ['admin@savourly.in'];
+        let deliveryPartners = JSON.parse(localStorage.getItem('savourlyDelivery')) || ['ravi.delivery@savourly.in', 'kumar.delivery@savourly.in'];
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function addAdmin() {
+            const input = document.getElementById('adminEmail');
+            const email = input.value.trim();
+            if (!email || !email.includes('@')) return alert('Enter a valid email');
+            if (admins.includes(email)) return alert('Email already exists');
+
+            admins.push(email);
+            localStorage.setItem('savourlyAdmins', JSON.stringify(admins));
+            renderAdmins();
+            input.value = '';
+            showToast('Admin added successfully!');
+        }
+
+        function removeAdmin(btn) {
+            const email = btn.parentElement.querySelector('span').textContent.split(' ')[0];
+            admins = admins.filter(a => a !== email);
+            localStorage.setItem('savourlyAdmins', JSON.stringify(admins));
+            renderAdmins();
+            showToast('Admin removed!');
+        }
+
+        function renderAdmins() {
+            const list = document.getElementById('adminList');
+            list.innerHTML = admins.map((email, i) => `
+                <div class="email-item">
+                    <span>${email} ${i === 0 ? '<span class="badge">Owner</span>' : ''}</span>
+                    <button class="remove-btn" onclick="removeAdmin(this)" ${i === 0 ? 'disabled' : ''}>×</button>
+                </div>
+            `).join('');
+        }
+
+        function addDelivery() {
+            const input = document.getElementById('deliveryEmail');
+            const email = input.value.trim();
+            if (!email || !email.includes('@')) return alert('Enter a valid email');
+            if (deliveryPartners.includes(email)) return alert('Email already exists');
+
+            deliveryPartners.push(email);
+            localStorage.setItem('savourlyDelivery', JSON.stringify(deliveryPartners));
+            renderDelivery();
+            input.value = '';
+            showToast('Delivery partner added!');
+        }
+
+        function removeDelivery(btn) {
+            const email = btn.parentElement.querySelector('span').textContent;
+            deliveryPartners = deliveryPartners.filter(d => d !== email);
+            localStorage.setItem('savourlyDelivery', JSON.stringify(deliveryPartners));
+            renderDelivery();
+            showToast('Partner removed!');
+        }
+
+        function renderDelivery() {
+            const list = document.getElementById('deliveryList');
+            list.innerHTML = deliveryPartners.map(email => `
+                <div class="email-item">
+                    <span>${email}</span>
+                    <button class="remove-btn" onclick="removeDelivery(this)">×</button>
+                </div>
+            `).join('');
+        }
+
+        function showClearModal() {
+            document.getElementById('clearModal').classList.add('active');
+        }
+
+        function hideModal() {
+            document.getElementById('clearModal').classList.remove('active');
+        }
+
+        function clearAllData() {
+            localStorage.removeItem('savourlyCart');
+            localStorage.removeItem('savourlyAddresses');
+            localStorage.removeItem('savourlySelectedLocation');
+            hideModal();
+            showToast('All data cleared!');
+        }
+
+        // Init
+        renderAdmins();
+        renderDelivery();
+    </script>
+</body>
+
+</html>

@@ -53,6 +53,59 @@ document.addEventListener('DOMContentLoaded', () => {
     // Checkout button
     checkoutBtnMain?.addEventListener('click', handleCheckout);
 
+    // Payment method handling
+    const paymentOptions = document.querySelectorAll('.payment-option');
+    const upiInputSection = document.getElementById('upiInputSection');
+    let selectedPayment = 'cod';
+
+    // Payment method labels for button O(1) lookup
+    const paymentLabels = {
+        'cod': 'Proceed to Payment',
+        'gpay': 'Pay with Google Pay',
+        'phonepe': 'Pay with PhonePe',
+        'upi': 'Pay with UPI'
+    };
+
+    // Initialize payment method handlers
+    paymentOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            // Remove active from all O(n) but n is always 4
+            paymentOptions.forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+
+            // Update selected payment
+            selectedPayment = option.dataset.method;
+
+            // Update button text and style
+            updateCheckoutButton(selectedPayment);
+
+            // Show/hide UPI input
+            if (upiInputSection) {
+                upiInputSection.style.display = selectedPayment === 'upi' ? 'block' : 'none';
+            }
+        });
+    });
+
+    // Update checkout button based on payment method
+    function updateCheckoutButton(method) {
+        if (!checkoutBtnMain) return;
+
+        // Remove all payment classes
+        checkoutBtnMain.classList.remove('gpay', 'phonepe', 'upi');
+
+        // Add appropriate class and update text
+        const btnText = checkoutBtnMain.querySelector('span');
+        if (btnText) {
+            btnText.textContent = paymentLabels[method] || 'Proceed to Payment';
+        }
+
+        // Add style class for non-COD payments
+        if (method !== 'cod') {
+            checkoutBtnMain.classList.add(method);
+        }
+    }
+
+
     // Render cart items
     function renderCart() {
         if (cart.length === 0) {
@@ -258,23 +311,73 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Get user details
+        const userName = document.getElementById('userName')?.value.trim();
+        const userPhone = document.getElementById('userPhone')?.value.trim();
+        const userAddress = document.getElementById('userAddress')?.value.trim();
+        const upiId = document.getElementById('upiId')?.value.trim();
+
+        // Validate user details - O(1) validation
+        if (!userName) {
+            showToast('Please enter your name');
+            document.getElementById('userName')?.focus();
+            return;
+        }
+        if (!userPhone || userPhone.length < 10) {
+            showToast('Please enter a valid phone number');
+            document.getElementById('userPhone')?.focus();
+            return;
+        }
+        if (!userAddress) {
+            showToast('Please enter your delivery address');
+            document.getElementById('userAddress')?.focus();
+            return;
+        }
+        if (selectedPayment === 'upi' && !upiId) {
+            showToast('Please enter your UPI ID');
+            document.getElementById('upiId')?.focus();
+            return;
+        }
+
         const subtotal = calculateSubtotal();
         const discount = calculateDiscount(subtotal);
         const total = subtotal - discount;
 
-        // For now, show a success message
-        // In production, this would redirect to a payment gateway
-        const message = `🎉 Order Confirmed!\n\nTotal: ₹${total.toLocaleString('en-IN')}/week\n${appliedCoupon ? `Coupon: ${appliedCoupon} applied\n` : ''}You will receive a confirmation email shortly.`;
+        // Get payment method name
+        const paymentMethodNames = {
+            'cod': 'Cash on Delivery',
+            'gpay': 'Google Pay',
+            'phonepe': 'PhonePe',
+            'upi': `UPI (${upiId})`
+        };
 
-        alert(message);
+        // Save order to localStorage
+        const order = {
+            id: 'ORD' + Date.now(),
+            items: cart,
+            customer: { name: userName, phone: userPhone, address: userAddress },
+            payment: selectedPayment,
+            subtotal,
+            discount,
+            total,
+            coupon: appliedCoupon,
+            timestamp: new Date().toISOString()
+        };
+        const orders = JSON.parse(localStorage.getItem('savourlyOrders')) || [];
+        orders.push(order);
+        localStorage.setItem('savourlyOrders', JSON.stringify(orders));
 
-        // Clear cart
+        // Clear cart before redirecting
         cart = [];
         saveCart();
-        renderCart();
+
+        // Redirect to order tracking page
+        window.location.href = `order-tracking.html?id=${order.id}`;
     }
 
+
     // Toast notification
+
     function showToast(message) {
         // Create toast element
         const toast = document.createElement('div');

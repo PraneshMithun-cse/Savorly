@@ -38,6 +38,88 @@
                     <div class="cart-items-list" id="cartItemsList">
                         <!-- Items will be dynamically loaded -->
                     </div>
+
+                    <!-- User Details Section -->
+                    <div class="user-details-section" id="userDetailsSection">
+                        <h3 class="section-heading">Delivery Details</h3>
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label for="userName">Your Name *</label>
+                                <input type="text" id="userName" placeholder="Enter your full name" required>
+                            </div>
+                            <div class="form-field">
+                                <label for="userPhone">Phone Number *</label>
+                                <input type="tel" id="userPhone" placeholder="+91 XXXXX XXXXX" required>
+                            </div>
+                            <div class="form-field full-width">
+                                <label for="userAddress">Delivery Address *</label>
+                                <textarea id="userAddress" placeholder="Enter your complete address with pincode"
+                                    rows="3" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods Section -->
+                    <div class="payment-methods-section" id="paymentMethodsSection">
+                        <h3 class="section-heading">Payment Method</h3>
+                        <div class="payment-options">
+                            <label class="payment-option active" data-method="cod">
+                                <input type="radio" name="paymentMethod" value="cod" checked>
+                                <div class="payment-icon">💵</div>
+                                <div class="payment-info">
+                                    <strong>Cash on Delivery</strong>
+                                    <span>Pay when you receive</span>
+                                </div>
+                                <div class="payment-check">✓</div>
+                            </label>
+                            <label class="payment-option" data-method="gpay">
+                                <input type="radio" name="paymentMethod" value="gpay">
+                                <div class="payment-icon gpay-icon">
+                                    <svg viewBox="0 0 24 24" width="28" height="28">
+                                        <path fill="#4285F4"
+                                            d="M12.545 10.239v3.821h5.445c-.239 1.487-1.789 4.359-5.445 4.359-3.273 0-5.946-2.711-5.946-6.043s2.673-6.043 5.946-6.043c1.865 0 3.113.795 3.828 1.481l2.606-2.51C17.094 3.577 14.989 2.619 12.545 2.619 6.979 2.619 2.545 7.053 2.545 12.619s4.434 10 10 10c5.77 0 9.593-4.054 9.593-9.769 0-.657-.072-1.159-.158-1.659H12.545z" />
+                                    </svg>
+                                </div>
+                                <div class="payment-info">
+                                    <strong>Google Pay</strong>
+                                    <span>UPI Payment</span>
+                                </div>
+                                <div class="payment-check">✓</div>
+                            </label>
+                            <label class="payment-option" data-method="phonepe">
+                                <input type="radio" name="paymentMethod" value="phonepe">
+                                <div class="payment-icon phonepe-icon">
+                                    <svg viewBox="0 0 24 24" width="28" height="28">
+                                        <circle cx="12" cy="12" r="10" fill="#5F259F" />
+                                        <path fill="#fff" d="M8 7h3l4 5-4 5H8l4-5-4-5z" />
+                                    </svg>
+                                </div>
+                                <div class="payment-info">
+                                    <strong>PhonePe</strong>
+                                    <span>UPI Payment</span>
+                                </div>
+                                <div class="payment-check">✓</div>
+                            </label>
+                            <label class="payment-option" data-method="upi">
+                                <input type="radio" name="paymentMethod" value="upi">
+                                <div class="payment-icon upi-icon">
+                                    <svg viewBox="0 0 24 24" width="28" height="28">
+                                        <rect width="24" height="24" rx="4" fill="#fff" />
+                                        <path fill="#097939" d="M4 8h4l6 8H8L4 8z" />
+                                        <path fill="#ED752E" d="M10 8h4l6 8h-4l-6-8z" />
+                                    </svg>
+                                </div>
+                                <div class="payment-info">
+                                    <strong>UPI ID</strong>
+                                    <span>Pay via any UPI app</span>
+                                </div>
+                                <div class="payment-check">✓</div>
+                            </label>
+                        </div>
+                        <div class="upi-input-section" id="upiInputSection" style="display: none;">
+                            <input type="text" id="upiId" placeholder="Enter your UPI ID (e.g. name@upi)">
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Order Summary Section -->

@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Partner | Savourly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00C9A7;
+            --primary-dark: #00b396;
+            --bg: #f5f7fa;
+            --card: #fff;
+            --text: #1a1a1a;
+            --text-muted: #666;
+            --border: #e5e7eb;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary), #00e6be);
+            padding: 20px;
+            color: #fff;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .logo span {
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 50px;
+        }
+
+        .online-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #fff;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 22px;
+            background: var(--primary);
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .stat-box {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-box strong {
+            display: block;
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .stat-box span {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .tab .badge {
+            background: var(--danger);
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 50px;
+            margin-left: 6px;
+        }
+
+        /* Content */
+        .content {
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Order Cards */
+        .order-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border-left: 4px solid var(--primary);
+        }
+
+        .order-card.pending {
+            border-left-color: var(--warning);
+        }
+
+        .order-card.preparing {
+            border-left-color: var(--info);
+        }
+
+        .order-card.delivered {
+            border-left-color: var(--success);
+            opacity: 0.7;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .order-id {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .order-time {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .order-status {
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-new {
+            background: #e8fff9;
+            color: var(--primary);
+        }
+
+        .status-preparing {
+            background: #eff6ff;
+            color: var(--info);
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        .status-delivered {
+            background: #dcfce7;
+            color: var(--success);
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 12px;
+        }
+
+        .customer-avatar {
+            width: 44px;
+            height: 44px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .customer-details {
+            flex: 1;
+        }
+
+        .customer-details strong {
+            display: block;
+            font-size: 15px;
+        }
+
+        .customer-details span {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .call-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .call-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .order-items {
+            margin-bottom: 16px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .order-item:last-child {
+            border: none;
+        }
+
+        .item-name {
+            font-size: 14px;
+        }
+
+        .item-qty {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .address-box {
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .address-icon {
+            font-size: 20px;
+        }
+
+        .address-text {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .navigate-btn {
+            padding: 8px 14px;
+            background: var(--info);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-accept {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-accept:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-preparing {
+            background: var(--info);
+            color: #fff;
+        }
+
+        .btn-pending {
+            background: var(--warning);
+            color: #fff;
+        }
+
+        .btn-delivered {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .btn-decline {
+            background: var(--bg);
+            color: var(--danger);
+            border: 2px solid var(--danger);
+        }
+
+        /* Message Section */
+        .message-section {
+            margin-top: 12px;
+        }
+
+        .quick-messages {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .quick-msg {
+            padding: 8px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-msg:hover {
+            border-color: var(--primary);
+            background: #e8fff9;
+        }
+
+        .custom-message {
+            display: flex;
+            gap: 8px;
+        }
+
+        .custom-message input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .custom-message input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .send-btn {
+            padding: 12px 20px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Message Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            padding: 24px;
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            margin-bottom: 12px;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .modal-btn.cancel {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .modal-btn.confirm {
+            background: var(--warning);
+            color: #fff;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 200;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateX(-50%) translateY(20px);
+                opacity: 0;
+            }
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            display: flex;
+            padding: 8px 0;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            color: var(--text-muted);
+            font-size: 11px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-top">
+            <div class="logo">🏍️ Savourly <span>Delivery Partner</span></div>
+            <div class="online-toggle">
+                <span id="onlineStatus">Online</span>
+                <div class="toggle-switch active" id="toggleSwitch" onclick="toggleOnline()"></div>
+            </div>
+        </div>
+        <div class="stats-row">
+            <div class="stat-box">
+                <strong id="todayDeliveries">0</strong>
+                <span>Today's Deliveries</span>
+            </div>
+            <div class="stat-box">
+                <strong id="todayEarnings">₹0</strong>
+                <span>Today's Earnings</span>
+            </div>
+            <div class="stat-box">
+                <strong>4.8 ★</strong>
+                <span>Rating</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab active" data-tab="new" onclick="switchTab('new')">New <span class="badge" id="newCount">0</span>
+        </div>
+        <div class="tab" data-tab="active" onclick="switchTab('active')">Active</div>
+        <div class="tab" data-tab="completed" onclick="switchTab('completed')">Completed</div>
+    </div>
+
+    <!-- Content -->
+    <div class="content" id="content">
+        <!-- Orders rendered by JS -->
+    </div>
+
+    <!-- Pending Modal -->
+    <div class="modal-overlay" id="pendingModal">
+        <div class="modal">
+            <div class="modal-title">⚠️ Mark as Pending</div>
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px; text-align: center;">Please
+                provide a reason to notify the customer</p>
+            <textarea class="modal-input" id="pendingReason" rows="3"
+                placeholder="E.g., Slight delay in preparation, will update soon..."></textarea>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closePendingModal()">Cancel</button>
+                <button class="modal-btn confirm" onclick="confirmPending()">Mark Pending</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-title" id="confirmTitle">❓ Confirm Action</div>
+            <p id="confirmMessage"
+                style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px; text-align: center;">Are you
+                sure?</p>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeConfirmModal()">Cancel</button>
+                <button class="modal-btn confirm" id="confirmBtn" style="background: var(--danger);">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            </svg>
+            Home
+        </a>
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+            </svg>
+            History
+        </a>
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23" />
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+            </svg>
+            Earnings
+        </a>
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+            </svg>
+            Profile
+        </a>
+    </nav>
+
+    <script>
+        // Quick messages for delivery partners
+        const quickMessages = [
+            "Your order is on the way! 🚴",
+            "Picking up your order now",
+            "Almost there! 2 mins away",
+            "Reached your location",
+            "Please come to collect your order",
+            "Slight delay, will update soon"
+        ];
+
+        // Mock orders data
+        let orders = [
+            {
+                id: 'ORD' + Date.now(),
+                customer: { name: 'Priya Sharma', phone: '+91 98765 43210', initials: 'PS' },
+                items: [{ name: 'Weekly Meal Plan - Silver', qty: 1, price: 1300 }],
+                address: '42, 2nd Cross Street, Anna Nagar East, Chennai - 600102',
+                status: 'new',
+                time: '2 mins ago',
+                amount: 1300
+            },
+            {
+                id: 'ORD' + (Date.now() + 1),
+                customer: { name: 'Rahul Verma', phone: '+91 87654 32109', initials: 'RV' },
+                items: [{ name: 'Monthly Transform Plan', qty: 1, price: 4500 }],
+                address: '15, 4th Main Road, Velachery, Chennai - 600042',
+                status: 'new',
+                time: '5 mins ago',
+                amount: 4500
+            }
+        ];
+
+        // Load orders from localStorage
+        const savedOrders = JSON.parse(localStorage.getItem('savourlyOrders')) || [];
+        savedOrders.forEach(order => {
+            if (!order.deliveryStatus) {
+                orders.push({
+                    id: order.id,
+                    customer: {
+                        name: order.customer?.name || 'Customer',
+                        phone: order.customer?.phone || 'N/A',
+                        initials: (order.customer?.name || 'C').substring(0, 2).toUpperCase()
+                    },
+                    items: order.items.map(i => ({ name: i.name, qty: i.quantity || 1, price: i.price })),
+                    address: order.customer?.address || 'Address not provided',
+                    status: 'new',
+                    time: 'Just now',
+                    amount: order.total
+                });
+            }
+        });
+
+        let currentTab = 'new';
+        let pendingOrderId = null;
+        let todayDeliveries = 0;
+        let todayEarnings = 0;
+
+        // Render orders
+        function renderOrders() {
+            const content = document.getElementById('content');
+            const filteredOrders = orders.filter(o => {
+                if (currentTab === 'new') return o.status === 'new';
+                if (currentTab === 'active') return ['preparing', 'pending', 'outForDelivery'].includes(o.status);
+                if (currentTab === 'completed') return o.status === 'delivered';
+                return true;
+            });
+
+            // Update counts
+            document.getElementById('newCount').textContent = orders.filter(o => o.status === 'new').length;
+            document.getElementById('todayDeliveries').textContent = todayDeliveries;
+            document.getElementById('todayEarnings').textContent = `₹${todayEarnings.toLocaleString('en-IN')}`;
+
+            if (filteredOrders.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">${currentTab === 'new' ? '📦' : currentTab === 'active' ? '🏃' : '✅'}</div>
+                        <h3>No ${currentTab} orders</h3>
+                        <p>${currentTab === 'new' ? 'New orders will appear here' : 'Orders will appear here'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = filteredOrders.map(order => `
+                <div class="order-card ${order.status}">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-id">${order.id}</div>
+                            <div class="order-time">${order.time}</div>
+                        </div>
+                        <span class="order-status status-${order.status}">
+                            ${getStatusLabel(order.status)}
+                        </span>
+                    </div>
+
+                    <div class="customer-info">
+                        <div class="customer-avatar">${order.customer.initials}</div>
+                        <div class="customer-details">
+                            <strong>${order.customer.name}</strong>
+                            <span>${order.customer.phone}</span>
+                        </div>
+                        <button class="call-btn" onclick="callCustomer('${order.customer.phone}')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0122 16.92z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div class="order-item">
+                                <span class="item-name">${item.name}</span>
+                                <span class="item-qty">×${item.qty}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="address-box">
+                        <div class="address-icon">📍</div>
+                        <div class="address-text">${order.address}</div>
+                        <button class="navigate-btn" onclick="navigateTo('${order.address}')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="3,11 22,2 13,21 11,13 3,11"/>
+                            </svg>
+                            Navigate
+                        </button>
+                    </div>
+
+                    ${renderActionButtons(order)}
+                    ${renderMessageSection(order)}
+                </div>
+            `).join('');
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'new': '🆕 New Order',
+                'preparing': '👨‍🍳 Preparing',
+                'pending': '⏸️ Pending',
+                'outForDelivery': '🚴 On the way',
+                'delivered': '✅ Delivered'
+            };
+            return labels[status] || status;
+        }
+
+        function renderActionButtons(order) {
+            if (order.status === 'new') {
+                return `
+                    <div class="action-buttons">
+                        <button class="action-btn btn-decline" onclick="declineOrder('${order.id}')">Decline</button>
+                        <button class="action-btn btn-accept" onclick="acceptOrder('${order.id}')">✓ Accept Order</button>
+                    </div>
+                `;
+            }
+            if (order.status === 'preparing') {
+                return `
+                    <div class="action-buttons">
+                        <button class="action-btn btn-pending" onclick="openPendingModal('${order.id}')">⏸️ Pending</button>
+                        <button class="action-btn btn-preparing" onclick="markOutForDelivery('${order.id}')">🚴 Out for Delivery</button>
+                    </div>
+                `;
+            }
+            if (order.status === 'pending') {
+                return `
+                    <div class="action-buttons">
+                        <button class="action-btn btn-preparing" onclick="resumePreparing('${order.id}')">Resume Preparing</button>
+                    </div>
+                `;
+            }
+            if (order.status === 'outForDelivery') {
+                return `
+                    <div class="action-buttons">
+                        <button class="action-btn btn-pending" onclick="openPendingModal('${order.id}')">⏸️ Issue</button>
+                        <button class="action-btn btn-delivered" onclick="markDelivered('${order.id}')">✅ Mark Delivered</button>
+                    </div>
+                `;
+            }
+            return '';
+        }
+
+        function renderMessageSection(order) {
+            if (order.status === 'delivered' || order.status === 'new') return '';
+            return `
+                <div class="message-section">
+                    <div class="quick-messages">
+                        ${quickMessages.slice(0, 4).map(msg => `
+                            <span class="quick-msg" onclick="sendQuickMessage('${order.id}', '${msg}')">${msg}</span>
+                        `).join('')}
+                    </div>
+                    <div class="custom-message">
+                        <input type="text" id="msg-${order.id}" placeholder="Type a message...">
+                        <button class="send-btn" onclick="sendCustomMessage('${order.id}')">Send</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Actions
+        function acceptOrder(id) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.status = 'preparing';
+                showToast('Order accepted! Start preparing.');
+                renderOrders();
+                switchTab('active');
+            }
+        }
+
+        function declineOrder(id) {
+            showConfirmModal(
+                '❌ Decline Order',
+                'Are you sure you want to decline this order?',
+                () => {
+                    orders = orders.filter(o => o.id !== id);
+                    showToast('Order declined');
+                    renderOrders();
+                }
+            );
+        }
+
+        function markOutForDelivery(id) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.status = 'outForDelivery';
+                showToast('Marked as out for delivery!');
+                sendQuickMessage(id, 'Your order is on the way! 🚴');
+                renderOrders();
+            }
+        }
+
+        function markDelivered(id) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.status = 'delivered';
+                todayDeliveries++;
+                todayEarnings += 50; // Delivery fee
+                showToast('🎉 Order delivered! +₹50 earned');
+                renderOrders();
+                switchTab('completed');
+            }
+        }
+
+        function openPendingModal(id) {
+            pendingOrderId = id;
+            document.getElementById('pendingModal').classList.add('active');
+        }
+
+        function closePendingModal() {
+            document.getElementById('pendingModal').classList.remove('active');
+            document.getElementById('pendingReason').value = '';
+            pendingOrderId = null;
+        }
+
+        function confirmPending() {
+            const reason = document.getElementById('pendingReason').value.trim();
+            if (!reason) {
+                showToast('⚠️ Please provide a reason');
+                return;
+            }
+            const order = orders.find(o => o.id === pendingOrderId);
+            if (order) {
+                order.status = 'pending';
+                sendQuickMessage(pendingOrderId, `⚠️ ${reason}`);
+                showToast('Order marked as pending, customer notified');
+            }
+            closePendingModal();
+            renderOrders();
+        }
+
+        // Custom Confirm Modal
+        let confirmCallback = null;
+
+        function showConfirmModal(title, message, onConfirm) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            confirmCallback = onConfirm;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            confirmCallback = null;
+        }
+
+        document.getElementById('confirmBtn').addEventListener('click', () => {
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            closeConfirmModal();
+        });
+
+
+
+        function resumePreparing(id) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.status = 'preparing';
+                sendQuickMessage(id, 'Good news! Your order is being prepared again 👨‍🍳');
+                showToast('Order resumed');
+                renderOrders();
+            }
+        }
+
+        function sendQuickMessage(id, msg) {
+            showToast(`Message sent: "${msg}"`);
+            // In production, this would send to the customer
+        }
+
+        function sendCustomMessage(id) {
+            const input = document.getElementById(`msg-${id}`);
+            const msg = input.value.trim();
+            if (msg) {
+                showToast(`Message sent: "${msg}"`);
+                input.value = '';
+            }
+        }
+
+        function callCustomer(phone) {
+            window.location.href = `tel:${phone.replace(/\s/g, '')}`;
+        }
+
+        function navigateTo(address) {
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`, '_blank');
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            renderOrders();
+        }
+
+        function toggleOnline() {
+            const toggle = document.getElementById('toggleSwitch');
+            const status = document.getElementById('onlineStatus');
+            toggle.classList.toggle('active');
+            status.textContent = toggle.classList.contains('active') ? 'Online' : 'Offline';
+            showToast(toggle.classList.contains('active') ? 'You are now online' : 'You are now offline');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Initialize
+        renderOrders();
+    </script>
+</body>
+
+</html>
