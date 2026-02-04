@@ -623,7 +623,19 @@
             showToast('All data cleared!');
         }
 
-        // Init
+        // Init - Save defaults to localStorage if not already there
+        function initEmailLists() {
+            // If no admins in localStorage, save the defaults
+            if (!localStorage.getItem('savourlyAdmins')) {
+                localStorage.setItem('savourlyAdmins', JSON.stringify(admins));
+            }
+            // If no delivery partners in localStorage, save the defaults
+            if (!localStorage.getItem('savourlyDelivery')) {
+                localStorage.setItem('savourlyDelivery', JSON.stringify(deliveryPartners));
+            }
+        }
+
+        initEmailLists();
         renderAdmins();
         renderDelivery();
     </script>
