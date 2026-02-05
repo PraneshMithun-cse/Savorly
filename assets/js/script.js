@@ -650,6 +650,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const isMobile = () => window.innerWidth <= 768;
         let isInitialized = false;
+        let scrollTimeout = null;
+        let isUserScrolling = false;
 
         const setup = () => {
             if (isMobile() && !isInitialized) {
@@ -682,6 +684,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+        // Pause animation
+        const pauseAnimation = () => {
+            const marqueeContent = container.querySelector('.marquee-content');
+            if (marqueeContent) {
+                marqueeContent.style.animationPlayState = 'paused';
+            }
+        };
+
+        // Resume animation
+        const resumeAnimation = () => {
+            const marqueeContent = container.querySelector('.marquee-content');
+            if (marqueeContent && !isUserScrolling) {
+                marqueeContent.style.animationPlayState = 'running';
+            }
+        };
+
         // Initial setup
         setup();
 
@@ -692,21 +710,34 @@ document.addEventListener('DOMContentLoaded', () => {
             resizeTimeout = setTimeout(setup, 150);
         });
 
-        // Pause on touch
+        // Pause on touch start
         container.addEventListener('touchstart', () => {
-            const marqueeContent = container.querySelector('.marquee-content');
-            if (marqueeContent) {
-                marqueeContent.style.animationPlayState = 'paused';
-            }
+            isUserScrolling = true;
+            pauseAnimation();
         }, { passive: true });
 
+        // Resume after touch ends (with delay)
         container.addEventListener('touchend', () => {
-            const marqueeContent = container.querySelector('.marquee-content');
-            if (marqueeContent) {
-                setTimeout(() => {
-                    marqueeContent.style.animationPlayState = 'running';
-                }, 2000);
-            }
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                isUserScrolling = false;
+                resumeAnimation();
+            }, 3000); // Resume after 3 seconds of inactivity
+        }, { passive: true });
+
+        // Handle scroll events for manual scrolling
+        container.addEventListener('scroll', () => {
+            isUserScrolling = true;
+            pauseAnimation();
+
+            // Clear existing timeout
+            clearTimeout(scrollTimeout);
+
+            // Set new timeout to resume after scrolling stops
+            scrollTimeout = setTimeout(() => {
+                isUserScrolling = false;
+                resumeAnimation();
+            }, 3000); // Resume after 3 seconds of no scrolling
         }, { passive: true });
     };
 

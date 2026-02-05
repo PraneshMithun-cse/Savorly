@@ -2800,9 +2800,12 @@ ul {
     /* Features grid - continuous marquee on mobile */
     .features-grid {
         display: flex;
-        overflow: hidden;
+        overflow-x: auto;
+        overflow-y: hidden;
         width: 100%;
         padding-bottom: 16px;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
     }
 
     .features-grid::-webkit-scrollbar {
@@ -2812,7 +2815,7 @@ ul {
     .features-grid .marquee-content {
         display: flex;
         gap: 16px;
-        animation: marquee-scroll 25s linear infinite;
+        animation: marquee-scroll 20s linear infinite;
         width: max-content;
     }
 
@@ -2828,9 +2831,12 @@ ul {
     /* Gallery grid - continuous marquee on mobile */
     .gallery-grid {
         display: flex;
-        overflow: hidden;
+        overflow-x: auto;
+        overflow-y: hidden;
         width: 100%;
         padding-bottom: 16px;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
     }
 
     .gallery-grid::-webkit-scrollbar {
@@ -2840,7 +2846,7 @@ ul {
     .gallery-grid .marquee-content {
         display: flex;
         gap: 16px;
-        animation: marquee-scroll 30s linear infinite;
+        animation: marquee-scroll 15s linear infinite;
         width: max-content;
     }
 
@@ -3582,13 +3588,20 @@ ul {
         padding: 0 16px;
     }
 
-    /* Location trigger hidden on very small screens */
+    /* Location trigger compact on small screens */
     .location-trigger {
-        display: none;
+        padding: 6px 10px;
+        font-size: 12px;
+        max-width: 130px;
+    }
+
+    .location-trigger svg {
+        width: 14px;
+        height: 14px;
     }
 
     .logo-location {
-        gap: 0;
+        gap: 8px;
     }
 
     /* Logo size */
@@ -3634,7 +3647,7 @@ ul {
     }
 
     .hero-image-container {
-        max-width: 220px;
+        max-width: 280px;
     }
 
     .hero-image-container .card-1 {
@@ -3825,7 +3838,7 @@ ul {
     }
 
     .hero-image-container {
-        max-width: 180px;
+        max-width: 250px;
     }
 
     .hero-image-container .card-1 {
@@ -3861,7 +3874,7 @@ ul {
     }
 
     .hero-image-container {
-        max-width: 200px;
+        max-width: 260px;
     }
 
     .hero-cta {
