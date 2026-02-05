@@ -3199,3 +3199,672 @@ ul {
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-xl);
 }
+
+/* ============================================
+   ENHANCED MOBILE RESPONSIVE STYLES
+   Complete coverage for all screen sizes
+   ============================================ */
+
+/* Tablet breakpoint improvements */
+@media (max-width: 1024px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .testimonials-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Mobile landscape and small tablets */
+@media (max-width: 768px) {
+
+    /* Location trigger in navbar */
+    .location-trigger {
+        padding: 8px 12px;
+        max-width: 150px;
+        gap: 6px;
+    }
+
+    .location-text {
+        font-size: 12px;
+        max-width: 80px;
+    }
+
+    .location-pin {
+        width: 14px;
+        height: 14px;
+    }
+
+    .location-arrow {
+        width: 12px;
+        height: 12px;
+    }
+
+    .logo-location {
+        gap: 12px;
+    }
+
+    /* Location modal mobile fixes */
+    .location-modal,
+    .add-address-modal {
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 100%;
+        border-radius: 0;
+        max-height: 100vh;
+    }
+
+    .location-modal-header {
+        padding: 16px;
+    }
+
+    .location-modal-header h2 {
+        font-size: 16px;
+    }
+
+    .location-modal-search {
+        margin: 12px 16px;
+        padding: 12px 14px;
+    }
+
+    .location-modal-content {
+        padding: 0 16px 16px;
+    }
+
+    .location-option {
+        padding: 14px;
+        gap: 12px;
+    }
+
+    .option-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .option-text strong {
+        font-size: 14px;
+    }
+
+    .option-text span {
+        font-size: 12px;
+    }
+
+    /* Add address form mobile */
+    .add-address-form {
+        padding: 16px;
+    }
+
+    .add-address-form .form-group {
+        margin-bottom: 16px;
+    }
+
+    .add-address-form label {
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+
+    .add-address-form input {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .label-options {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .label-btn {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+
+    .save-address-btn {
+        padding: 14px;
+        font-size: 15px;
+    }
+
+    .detected-address-box {
+        margin: 0 16px 16px;
+        padding: 14px 16px;
+    }
+
+    .detected-icon {
+        font-size: 20px;
+    }
+
+    .detected-text strong {
+        font-size: 13px;
+    }
+
+    .detected-text span {
+        font-size: 12px;
+    }
+
+    /* Subscribe form mobile */
+    .subscribe-box {
+        padding: 32px 20px;
+        border-radius: var(--radius-lg);
+    }
+
+    .subscribe-title {
+        font-size: 22px;
+        margin-bottom: 8px;
+    }
+
+    .subscribe-description {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .subscribe-form .form-row {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .subscribe-form .form-input {
+        padding: 14px 16px;
+        font-size: 14px;
+    }
+
+    .subscribe-form .btn {
+        width: 100%;
+        padding: 14px 20px;
+    }
+
+    .subscribe-note {
+        font-size: 12px;
+        margin-top: 16px;
+    }
+
+    /* Footer mobile */
+    .footer {
+        padding: 48px 0 32px;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        text-align: center;
+    }
+
+    .footer-brand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer-title {
+        font-size: 15px;
+        margin-bottom: 12px;
+    }
+
+    .footer-menu li {
+        margin-bottom: 8px;
+    }
+
+    .footer-menu a {
+        font-size: 14px;
+    }
+
+    .footer-bottom {
+        padding-top: 24px;
+    }
+
+    .copyright {
+        font-size: 12px;
+    }
+
+    /* CTA section mobile */
+    .cta {
+        padding: 60px 0;
+    }
+
+    .cta-title {
+        font-size: 24px;
+        line-height: 1.3;
+    }
+
+    .cta-description {
+        font-size: 15px;
+        margin-bottom: 24px;
+    }
+
+    .cta .btn {
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .cta-note {
+        font-size: 12px;
+        margin-top: 16px;
+    }
+
+    /* Section headers mobile */
+    .section-header {
+        margin-bottom: 32px;
+    }
+
+    .section-badge {
+        font-size: 12px;
+        padding: 6px 12px;
+        margin-bottom: 12px;
+    }
+
+    .section-title {
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+
+    .section-description {
+        font-size: 14px;
+        line-height: 1.5;
+        padding: 0 16px;
+    }
+
+    /* Feature cards mobile */
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .feature-card {
+        padding: 24px 20px;
+    }
+
+    .feature-card-icon {
+        width: 52px;
+        height: 52px;
+        margin-bottom: 16px;
+    }
+
+    .feature-card-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .feature-card-title {
+        font-size: 17px;
+        margin-bottom: 8px;
+    }
+
+    .feature-card-description {
+        font-size: 14px;
+    }
+
+    /* Gallery mobile */
+    .gallery {
+        padding: 60px 0;
+    }
+
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .gallery-item {
+        border-radius: var(--radius-lg);
+    }
+
+    .gallery-overlay {
+        padding: 12px;
+    }
+
+    .gallery-overlay h4 {
+        font-size: 13px;
+    }
+
+    .gallery-overlay p {
+        font-size: 11px;
+    }
+
+    /* Saved addresses mobile */
+    .saved-addresses-section h3 {
+        font-size: 11px;
+        padding-left: 14px;
+    }
+
+    .saved-address-card {
+        padding: 14px;
+        gap: 12px;
+    }
+
+    .address-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    .address-label {
+        font-size: 14px;
+    }
+
+    .address-text {
+        font-size: 12px;
+    }
+
+    .address-phone {
+        font-size: 11px;
+    }
+
+    .address-actions {
+        margin-top: 6px;
+    }
+
+    .address-action-btn {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* Mobile portrait */
+@media (max-width: 480px) {
+
+    /* Container tighter padding */
+    .container {
+        padding: 0 16px;
+    }
+
+    /* Location trigger hidden on very small screens */
+    .location-trigger {
+        display: none;
+    }
+
+    .logo-location {
+        gap: 0;
+    }
+
+    /* Logo size */
+    .logo-img {
+        height: 40px;
+    }
+
+    /* Nav container */
+    .nav-container {
+        padding: 10px 12px;
+    }
+
+    /* Mobile menu improvements */
+    .mobile-menu {
+        padding: 24px 16px;
+        top: 60px;
+    }
+
+    .mobile-nav-link {
+        padding: 14px 16px;
+        font-size: 17px;
+    }
+
+    .mobile-nav-actions .btn {
+        width: 100%;
+    }
+
+    /* Hero section small mobile */
+    .hero {
+        padding: 70px 0 20px;
+        min-height: 100vh;
+    }
+
+    .hero-badge {
+        font-size: 12px;
+        padding: 6px 12px;
+        margin-bottom: 16px;
+    }
+
+    .hero-title {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+
+    .hero-image-container {
+        max-width: 220px;
+    }
+
+    .hero-image-container .card-1 {
+        left: -40px;
+        top: 10%;
+    }
+
+    .hero-image-container .card-2 {
+        right: -40px;
+        bottom: 10%;
+    }
+
+    .hero-image-container .floating-card {
+        padding: 4px 8px;
+    }
+
+    .hero-image-container .card-icon-img {
+        width: 28px;
+        height: 28px;
+        padding: 4px;
+    }
+
+    .hero-image-container .card-title {
+        font-size: 9px;
+    }
+
+    .hero-image-container .card-value {
+        font-size: 12px;
+    }
+
+    /* Price box small mobile */
+    .hero-price-box {
+        padding: 0 16px;
+        margin-bottom: 8px;
+    }
+
+    .price-starts {
+        font-size: 14px;
+    }
+
+    .rupee-symbol {
+        font-size: 28px;
+    }
+
+    .price-big {
+        font-size: 48px;
+    }
+
+    .price-per {
+        font-size: 14px;
+    }
+
+    /* CTA buttons small mobile */
+    .hero-cta {
+        padding-bottom: 40px;
+        margin-bottom: 16px;
+    }
+
+    .hero-cta .btn {
+        max-width: 260px;
+        height: 52px;
+        font-size: 16px;
+    }
+
+    /* Plan cards small mobile */
+    .plan-card {
+        min-width: 90%;
+        padding: 16px;
+    }
+
+    .plan-card .plan-name {
+        font-size: 18px;
+    }
+
+    .plan-card .plan-price .price-value {
+        font-size: 24px;
+    }
+
+    .plan-card .btn-block {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    /* Subscribe small mobile */
+    .subscribe-box {
+        padding: 24px 16px;
+    }
+
+    .subscribe-title {
+        font-size: 20px;
+    }
+
+    .subscribe-description {
+        font-size: 13px;
+    }
+
+    .subscribe-form .form-input {
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+
+    .subscribe-form .btn {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    /* Gallery 2 column small */
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .gallery-item {
+        border-radius: var(--radius);
+    }
+
+    /* Footer small mobile */
+    .footer {
+        padding: 40px 0 24px;
+    }
+
+    .footer-grid {
+        gap: 24px;
+    }
+
+    .footer-title {
+        font-size: 14px;
+    }
+
+    .footer-menu a {
+        font-size: 13px;
+    }
+
+    /* Location modal small mobile */
+    .location-modal-search input {
+        font-size: 14px;
+    }
+
+    .location-option {
+        padding: 12px;
+    }
+
+    .option-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* Add address form small */
+    .add-address-form input {
+        padding: 11px 12px;
+        font-size: 13px;
+    }
+
+    .label-btn {
+        padding: 7px 12px;
+        font-size: 12px;
+    }
+
+    .save-address-btn {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    /* CTA small */
+    .cta {
+        padding: 48px 0;
+    }
+
+    .cta-title {
+        font-size: 22px;
+        padding: 0 8px;
+    }
+
+    .cta-description {
+        font-size: 14px;
+        padding: 0 8px;
+    }
+}
+
+/* Very small mobile devices */
+@media (max-width: 360px) {
+    .hero-title {
+        font-size: 24px;
+    }
+
+    .price-big {
+        font-size: 42px;
+    }
+
+    .hero-image-container {
+        max-width: 180px;
+    }
+
+    .hero-image-container .card-1 {
+        left: -30px;
+    }
+
+    .hero-image-container .card-2 {
+        right: -30px;
+    }
+
+    .plan-card {
+        min-width: 95%;
+    }
+
+    .subscribe-title {
+        font-size: 18px;
+    }
+
+    .cta-title {
+        font-size: 20px;
+    }
+}
+
+/* Height-based media queries for short screens */
+@media (max-height: 700px) and (max-width: 768px) {
+    .hero {
+        padding-top: 60px;
+        min-height: auto;
+    }
+
+    .hero-visual {
+        max-height: 35vh;
+    }
+
+    .hero-image-container {
+        max-width: 200px;
+    }
+
+    .hero-cta {
+        padding-bottom: 20px;
+    }
+}
