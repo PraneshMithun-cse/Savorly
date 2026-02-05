@@ -684,7 +684,7 @@
                     </svg>
                 </div>
 
-                <!-- Add Address -->
+                <!-- Add Custom Address -->
                 <div class="location-option add-address" id="addAddressBtn">
                     <div class="option-icon add">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -693,7 +693,8 @@
                         </svg>
                     </div>
                     <div class="option-text">
-                        <strong>Add Address</strong>
+                        <strong>Add Custom Address</strong>
+                        <span>Enter complete address manually</span>
                     </div>
                     <svg class="option-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2">
@@ -715,7 +716,57 @@
         </div>
     </div>
 
-    <!-- Add Address Modal -->
+    <!-- Complete Current Location Modal (Door/Landmark) -->
+    <div class="add-address-modal-overlay" id="completeLocationModal">
+        <div class="add-address-modal">
+            <div class="location-modal-header">
+                <button class="location-modal-close" id="closeCompleteLocationModal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <h2>Complete your address</h2>
+            </div>
+
+            <div class="detected-address-box">
+                <div class="detected-icon">📍</div>
+                <div class="detected-text">
+                    <strong>Detected Location</strong>
+                    <span id="detectedAddressText">Loading...</span>
+                </div>
+            </div>
+
+            <form class="add-address-form" id="completeLocationForm">
+                <div class="form-group">
+                    <label>Address Label</label>
+                    <div class="label-options" id="gpsLabelOptions">
+                        <button type="button" class="label-btn active" data-label="Home">🏠 Home</button>
+                        <button type="button" class="label-btn" data-label="Work">💼 Work</button>
+                        <button type="button" class="label-btn" data-label="Other">📍 Other</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="gpsDoorNo">Door No. / Flat No. *</label>
+                    <input type="text" id="gpsDoorNo" placeholder="E.g., 12A, Flat 302, Building B" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="gpsLandmark">Landmark (Optional)</label>
+                    <input type="text" id="gpsLandmark" placeholder="E.g., Near Metro Station, Opposite Park">
+                </div>
+
+                <div class="form-group">
+                    <label for="gpsPhone">Phone Number *</label>
+                    <input type="tel" id="gpsPhone" placeholder="+91 XXXXX XXXXX" required>
+                </div>
+
+                <button type="submit" class="save-address-btn">Save & Use This Address</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Custom Address Modal -->
     <div class="add-address-modal-overlay" id="addAddressModal">
         <div class="add-address-modal">
             <div class="location-modal-header">
@@ -738,8 +789,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="addressLine1">Complete Address *</label>
-                    <input type="text" id="addressLine1" placeholder="House no., Building, Street" required>
+                    <label for="addressDoorNo">Door No. / Flat / Apartment *</label>
+                    <input type="text" id="addressDoorNo" placeholder="E.g., 12A, Flat 302, Tower B" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="addressLine1">Building / Street Name *</label>
+                    <input type="text" id="addressLine1" placeholder="Building name, Street" required>
                 </div>
 
                 <div class="form-group">
@@ -753,20 +809,32 @@
                         <input type="text" id="addressCity" placeholder="City" required>
                     </div>
                     <div class="form-group">
+                        <label for="addressState">State *</label>
+                        <input type="text" id="addressState" placeholder="State" value="Tamil Nadu" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="addressPincode">Pincode *</label>
                         <input type="text" id="addressPincode" placeholder="Pincode" required maxlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="addressPhone">Phone Number *</label>
+                        <input type="tel" id="addressPhone" placeholder="+91 XXXXX XXXXX" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="addressPhone">Phone Number *</label>
-                    <input type="tel" id="addressPhone" placeholder="+91 XXXXX XXXXX" required>
+                    <label for="addressLandmark">Landmark (Optional)</label>
+                    <input type="text" id="addressLandmark" placeholder="E.g., Near Metro Station">
                 </div>
 
                 <button type="submit" class="save-address-btn">Save Address</button>
             </form>
         </div>
     </div>
+
 
     <script src="assets/js/script.js"></script>
 </body>

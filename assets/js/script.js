@@ -125,29 +125,102 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Use current location
+    // Use current location - Open Complete Location Modal
     useCurrentLocation?.addEventListener('click', () => {
         if (window.currentGPSAddress) {
-            const shortAddress = window.currentGPSAddress.city;
-            locationText.textContent = shortAddress;
-            localStorage.setItem('savourlySelectedLocation', JSON.stringify({
-                type: 'gps',
-                display: shortAddress,
-                full: window.currentGPSAddress.full
-            }));
-            locationModal.classList.remove('active');
-            document.body.style.overflow = '';
+            // Show the detected address in the complete location modal
+            const detectedText = document.getElementById('detectedAddressText');
+            if (detectedText) {
+                detectedText.textContent = window.currentGPSAddress.full;
+            }
+            // Open complete location modal
+            const completeModal = document.getElementById('completeLocationModal');
+            if (completeModal) {
+                completeModal.classList.add('active');
+            }
+        } else {
+            alert('Please wait for location to be detected...');
         }
+    });
+
+    // Close complete location modal
+    const closeCompleteLocationModal = document.getElementById('closeCompleteLocationModal');
+    closeCompleteLocationModal?.addEventListener('click', () => {
+        const completeModal = document.getElementById('completeLocationModal');
+        completeModal?.classList.remove('active');
+    });
+
+    // GPS Label button selection
+    let gpsSelectedLabel = 'Home';
+    document.getElementById('gpsLabelOptions')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.label-btn');
+        if (btn) {
+            document.querySelectorAll('#gpsLabelOptions .label-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            gpsSelectedLabel = btn.dataset.label;
+        }
+    });
+
+    // Complete Location Form Submit - Save GPS address
+    const completeLocationForm = document.getElementById('completeLocationForm');
+    completeLocationForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const doorNo = document.getElementById('gpsDoorNo').value;
+        const landmark = document.getElementById('gpsLandmark').value;
+        const phone = document.getElementById('gpsPhone').value;
+        const gpsData = window.currentGPSAddress || {};
+
+        const newAddress = {
+            id: Date.now(),
+            label: gpsSelectedLabel,
+            doorNo: doorNo,
+            line1: doorNo,
+            line2: gpsData.city || 'Unknown',
+            landmark: landmark,
+            city: gpsData.city || 'Unknown',
+            state: gpsData.state || 'Tamil Nadu',
+            pincode: gpsData.pincode || '',
+            phone: phone,
+            fullGPS: gpsData.full || ''
+        };
+
+        savedAddresses.push(newAddress);
+        localStorage.setItem('savourlyAddresses', JSON.stringify(savedAddresses));
+
+        // Set as selected location
+        const shortAddress = gpsSelectedLabel;
+        locationText.textContent = shortAddress;
+        localStorage.setItem('savourlySelectedLocation', JSON.stringify({
+            type: 'saved',
+            id: newAddress.id,
+            display: gpsSelectedLabel,
+            full: `${doorNo}, ${landmark ? landmark + ', ' : ''}${gpsData.city || 'Unknown'} - ${gpsData.pincode || ''}`
+        }));
+
+        // Reset form
+        completeLocationForm.reset();
+        document.querySelectorAll('#gpsLabelOptions .label-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('#gpsLabelOptions .label-btn[data-label="Home"]')?.classList.add('active');
+        gpsSelectedLabel = 'Home';
+
+        // Close all modals
+        document.getElementById('completeLocationModal')?.classList.remove('active');
+        locationModal.classList.remove('active');
+        document.body.style.overflow = '';
+        renderSavedAddresses();
     });
 
     // Open add address modal
     addAddressBtn?.addEventListener('click', () => {
         addAddressModal.classList.add('active');
-        // Pre-fill city if GPS detected
+        // Pre-fill city/state/pincode if GPS detected
         if (window.currentGPSAddress) {
             const cityInput = document.getElementById('addressCity');
+            const stateInput = document.getElementById('addressState');
             const pincodeInput = document.getElementById('addressPincode');
-            if (cityInput) cityInput.value = window.currentGPSAddress.city;
+            if (cityInput) cityInput.value = window.currentGPSAddress.city || '';
+            if (stateInput && window.currentGPSAddress.state) stateInput.value = window.currentGPSAddress.state;
             if (pincodeInput && window.currentGPSAddress.pincode) pincodeInput.value = window.currentGPSAddress.pincode;
         }
     });
@@ -157,42 +230,67 @@ document.addEventListener('DOMContentLoaded', () => {
         addAddressModal.classList.remove('active');
     });
 
-    // Label button selection
-    document.querySelectorAll('.label-btn').forEach(btn => {
+    // Label button selection for custom address form
+    document.querySelectorAll('#addAddressForm .label-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.label-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#addAddressForm .label-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             selectedAddressLabel = btn.dataset.label;
         });
     });
 
-    // Save new address
+    // Save new custom address
     addAddressForm?.addEventListener('submit', (e) => {
         e.preventDefault();
+
+        const doorNo = document.getElementById('addressDoorNo')?.value || '';
+        const line1 = document.getElementById('addressLine1').value;
+        const line2 = document.getElementById('addressLine2').value;
+        const city = document.getElementById('addressCity').value;
+        const state = document.getElementById('addressState')?.value || 'Tamil Nadu';
+        const pincode = document.getElementById('addressPincode').value;
+        const phone = document.getElementById('addressPhone').value;
+        const landmark = document.getElementById('addressLandmark')?.value || '';
 
         const newAddress = {
             id: Date.now(),
             label: selectedAddressLabel,
-            line1: document.getElementById('addressLine1').value,
-            line2: document.getElementById('addressLine2').value,
-            city: document.getElementById('addressCity').value,
-            pincode: document.getElementById('addressPincode').value,
-            phone: document.getElementById('addressPhone').value
+            doorNo: doorNo,
+            line1: doorNo ? `${doorNo}, ${line1}` : line1,
+            line2: line2,
+            landmark: landmark,
+            city: city,
+            state: state,
+            pincode: pincode,
+            phone: phone
         };
 
         savedAddresses.push(newAddress);
         localStorage.setItem('savourlyAddresses', JSON.stringify(savedAddresses));
 
+        // Set as selected location
+        locationText.textContent = selectedAddressLabel;
+        localStorage.setItem('savourlySelectedLocation', JSON.stringify({
+            type: 'saved',
+            id: newAddress.id,
+            display: selectedAddressLabel,
+            full: `${newAddress.line1}, ${line2}, ${city} - ${pincode}`
+        }));
+
         // Reset form
         addAddressForm.reset();
-        document.querySelectorAll('.label-btn').forEach(b => b.classList.remove('active'));
-        document.querySelector('.label-btn[data-label="Home"]')?.classList.add('active');
+        document.getElementById('addressState').value = 'Tamil Nadu';
+        document.querySelectorAll('#addAddressForm .label-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('#addAddressForm .label-btn[data-label="Home"]')?.classList.add('active');
         selectedAddressLabel = 'Home';
 
-        // Close add modal, refresh list
+        // Close all modals
         addAddressModal.classList.remove('active');
+        locationModal.classList.remove('active');
+        document.body.style.overflow = '';
         renderSavedAddresses();
     });
+
 
     // Render saved addresses
     function renderSavedAddresses() {
@@ -212,14 +310,16 @@ document.addEventListener('DOMContentLoaded', () => {
         savedAddresses.forEach(address => {
             const card = document.createElement('div');
             card.className = 'saved-address-card';
+            const landmarkText = address.landmark ? `, ${address.landmark}` : '';
             card.innerHTML = `
                 <div class="address-icon">${address.label === 'Home' ? '🏠' : address.label === 'Work' ? '💼' : '📍'}</div>
                 <div class="address-details">
                     <div class="address-header">
                         <span class="address-label">${address.label}</span>
                     </div>
-                    <div class="address-text">${address.line1}, ${address.line2}, ${address.city}</div>
+                    <div class="address-text">${address.line1}, ${address.line2}${landmarkText}, ${address.city} - ${address.pincode || ''}</div>
                     <div class="address-phone">Phone: ${address.phone}</div>
+
                     <div class="address-actions">
                         <button class="address-action-btn edit-btn" data-id="${address.id}">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg>

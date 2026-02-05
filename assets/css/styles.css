@@ -856,6 +856,43 @@ ul {
     background: var(--primary-dark);
 }
 
+/* Detected Address Box */
+.detected-address-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(0, 201, 167, 0.15), rgba(0, 201, 167, 0.05));
+    border: 1px solid rgba(0, 201, 167, 0.3);
+    border-radius: 12px;
+    margin: 0 20px 20px;
+}
+
+.detected-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.detected-text {
+    flex: 1;
+}
+
+.detected-text strong {
+    display: block;
+    font-size: 14px;
+    color: #00C9A7;
+    margin-bottom: 4px;
+}
+
+.detected-text span {
+    font-size: 13px;
+    color: #bbb;
+    line-height: 1.4;
+    display: block;
+}
+
+
 .nav-links {
     display: flex;
     align-items: center;
