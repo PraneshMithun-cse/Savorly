@@ -39,24 +39,99 @@
                         <!-- Items will be dynamically loaded -->
                     </div>
 
-                    <!-- User Details Section -->
-                    <div class="user-details-section" id="userDetailsSection">
-                        <h3 class="section-heading">Delivery Details</h3>
-                        <div class="form-grid">
-                            <div class="form-field">
-                                <label for="userName">Your Name *</label>
-                                <input type="text" id="userName" placeholder="Enter your full name" required>
-                            </div>
-                            <div class="form-field">
-                                <label for="userPhone">Phone Number *</label>
-                                <input type="tel" id="userPhone" placeholder="+91 XXXXX XXXXX" required>
-                            </div>
-                            <div class="form-field full-width">
-                                <label for="userAddress">Delivery Address *</label>
-                                <textarea id="userAddress" placeholder="Enter your complete address with pincode"
-                                    rows="3" required></textarea>
-                            </div>
+                    <!-- Delivery Address Section -->
+                    <div class="delivery-address-section" id="deliveryAddressSection">
+                        <h3 class="section-heading">Delivery Address</h3>
+
+                        <!-- Saved Address Cards (populated by JS) -->
+                        <div class="saved-address-cards" id="savedAddressCards">
+                            <!-- JS will render saved address cards here -->
                         </div>
+
+                        <!-- Add New Address Button -->
+                        <button class="add-new-address-btn" id="addNewAddressBtn" type="button">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            Add New Address
+                        </button>
+
+                        <!-- Inline Add Address Form (hidden by default) -->
+                        <div class="inline-address-form" id="inlineAddressForm" style="display:none;">
+                            <div class="address-form-header">
+                                <h4>Add Delivery Address</h4>
+                                <button type="button" class="use-location-btn" id="cartUseLocationBtn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="3" />
+                                        <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+                                    </svg>
+                                    Use My Location
+                                </button>
+                            </div>
+                            <div class="address-form-grid">
+                                <div class="form-field">
+                                    <label for="cartAddrName">Name *</label>
+                                    <input type="text" id="cartAddrName" placeholder="Your full name" required>
+                                </div>
+                                <div class="form-field">
+                                    <label for="cartAddrPhone">Contact Number *</label>
+                                    <input type="tel" id="cartAddrPhone" placeholder="+91 XXXXX XXXXX" required>
+                                </div>
+                                <div class="form-field">
+                                    <label for="cartAddrHouse">House no. / Building name *</label>
+                                    <input type="text" id="cartAddrHouse" placeholder="e.g. 12A, Sunshine Apartments">
+                                </div>
+                                <div class="form-field">
+                                    <label for="cartAddrRoad">Road name / Area / Colony *</label>
+                                    <input type="text" id="cartAddrRoad" placeholder="e.g. MG Road, Koramangala">
+                                </div>
+                                <div class="form-field">
+                                    <label for="cartAddrPincode">Pincode *</label>
+                                    <input type="text" id="cartAddrPincode" placeholder="e.g. 560001" maxlength="6">
+                                </div>
+                                <div class="form-field">
+                                    <label for="cartAddrCity">City *</label>
+                                    <input type="text" id="cartAddrCity" placeholder="e.g. Chennai">
+                                </div>
+                                <div class="form-field">
+                                    <label for="cartAddrState">State</label>
+                                    <select id="cartAddrState">
+                                        <option value="Tamil Nadu">Tamil Nadu</option>
+                                        <option value="Karnataka">Karnataka</option>
+                                        <option value="Kerala">Kerala</option>
+                                        <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                        <option value="Telangana">Telangana</option>
+                                        <option value="Maharashtra">Maharashtra</option>
+                                        <option value="Delhi">Delhi</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-field">
+                                    <label for="cartAddrLandmark">Nearby Famous Place (optional)</label>
+                                    <input type="text" id="cartAddrLandmark" placeholder="e.g. Near City Mall">
+                                </div>
+                            </div>
+                            <!-- Address Label -->
+                            <div class="address-label-picker">
+                                <span>Save as</span>
+                                <div class="label-options" id="cartLabelOptions">
+                                    <button type="button" class="label-btn active" data-label="Home">🏠 Home</button>
+                                    <button type="button" class="label-btn" data-label="Work">🏢 Work</button>
+                                    <button type="button" class="label-btn" data-label="Other">📍 Other</button>
+                                </div>
+                            </div>
+                            <button type="button" class="save-address-btn" id="saveCartAddressBtn">
+                                Save Address and Continue
+                            </button>
+                        </div>
+
+                        <!-- Hidden fields for checkout (populated by JS) -->
+                        <input type="hidden" id="userName">
+                        <input type="hidden" id="userPhone">
+                        <input type="hidden" id="userAddress">
                     </div>
 
                     <!-- Payment Methods Section -->

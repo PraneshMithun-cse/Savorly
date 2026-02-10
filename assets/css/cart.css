@@ -878,3 +878,257 @@
         font-size: 13px;
     }
 }
+
+/* ============================================
+   ADDRESS SECTION STYLES (Redesign)
+   ============================================ */
+
+.delivery-address-section {
+    margin-top: 28px;
+    padding-top: 28px;
+    border-top: 1px solid var(--gray-200);
+}
+
+/* Saved Address Cards */
+.saved-address-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.address-card {
+    background: var(--gray-50);
+    border: 2px solid transparent;
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.address-card:hover {
+    background: var(--white);
+    border-color: var(--gray-200);
+    box-shadow: var(--shadow-sm);
+}
+
+.address-card.selected {
+    background: var(--white);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(0, 201, 167, 0.1);
+}
+
+.address-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.address-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gray-800);
+    background: var(--white);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-xs);
+}
+
+.address-check {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    font-size: 12px;
+    /* transition: var(--transition); */
+}
+
+.address-card.selected .address-check {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.address-details {
+    font-size: 14px;
+    color: var(--gray-600);
+    line-height: 1.4;
+    flex: 1;
+}
+
+.address-phone {
+    font-size: 13px;
+    color: var(--gray-500);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Add New Address Button */
+.add-new-address-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary);
+    background: transparent;
+    border: 1px dashed var(--primary);
+    padding: 12px 20px;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    width: 100%;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.add-new-address-btn:hover {
+    background: var(--primary-light);
+}
+
+/* Inline Address Form */
+.inline-address-form {
+    background: var(--gray-50);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    margin-top: 20px;
+    border: 1px solid var(--gray-200);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.address-form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.address-form-header h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gray-800);
+}
+
+.use-location-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.use-location-btn:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.address-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.address-label-picker {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.address-label-picker span {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.label-options {
+    display: flex;
+    gap: 8px;
+}
+
+.label-btn {
+    padding: 6px 14px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-full);
+    background: var(--white);
+    color: var(--gray-600);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.label-btn:hover {
+    border-color: var(--gray-400);
+}
+
+.label-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--white);
+}
+
+.save-address-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--gray-800);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.save-address-btn:hover {
+    background: var(--black);
+    transform: translateY(-2px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+    .address-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .saved-address-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .address-label-picker {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}

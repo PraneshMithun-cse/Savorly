@@ -6,18 +6,26 @@ const path = require('path');
 const admin = require('firebase-admin');
 
 // ─── Firebase Admin Init ────────────────────────────────────────────────────
-const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT || './firebase-service-account.json';
 try {
-    const serviceAccount = require(path.resolve(serviceAccountPath));
+    let serviceAccount;
+
+    // Option 1: JSON string from environment variable (for Vercel)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    } else {
+        // Option 2: Local file (for dev)
+        const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT || './firebase-service-account.json';
+        serviceAccount = require(path.resolve(serviceAccountPath));
+    }
+
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
     });
     console.log('✅ Firebase Admin SDK initialized');
 } catch (err) {
-    console.warn('⚠️  Firebase service account not found at', serviceAccountPath);
-    console.warn('   Token verification will be disabled. To enable, download your service account key from:');
-    console.warn('   Firebase Console → Project Settings → Service Accounts → Generate New Private Key');
-    console.warn('   Place the JSON file at the path specified in .env (FIREBASE_SERVICE_ACCOUNT)');
+    console.warn('⚠️  Firebase service account not found.');
+    console.warn('   For local dev: place firebase-service-account.json in project root');
+    console.warn('   For Vercel: set FIREBASE_SERVICE_ACCOUNT_JSON env var');
 
     // Initialize without credentials so the app still runs
     if (!admin.apps.length) {
@@ -424,7 +432,12 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// ─── Start Server ───────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-    console.log(`🚀 Savourly server running at http://localhost:${PORT}`);
-});
+// ─── Start Server (local dev only, Vercel uses the export) ──────────────────
+if (process.env.VERCEL !== '1') {
+    app.listen(PORT, () => {
+        console.log(`🚀 Savourly server running at http://localhost:${PORT}`);
+    });
+}
+
+// Export for Vercel serverless
+module.exports = app;

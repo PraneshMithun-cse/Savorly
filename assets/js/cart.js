@@ -37,6 +37,214 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize cart display
     renderCart();
 
+    // ============================================
+    // AUTO-FILL SAVED ADDRESS & USER INFO
+    // ============================================
+    // ============================================
+    // SMART ADDRESS SECTION (Redesign)
+    // ============================================
+
+    // DOM Elements
+    const savedAddressCards = document.getElementById('savedAddressCards');
+    const addNewAddressBtn = document.getElementById('addNewAddressBtn');
+    const inlineAddressForm = document.getElementById('inlineAddressForm');
+    const saveCartAddressBtn = document.getElementById('saveCartAddressBtn');
+    const cartUseLocationBtn = document.getElementById('cartUseLocationBtn');
+    const cartLabelOptions = document.getElementById('cartLabelOptions');
+
+    // State
+    let cartSelectedLabel = 'Home';
+
+    function renderDeliverySection() {
+        const savedAddresses = JSON.parse(localStorage.getItem('savourlyAddresses')) || [];
+        const selectedLocation = JSON.parse(localStorage.getItem('savourlySelectedLocation'));
+
+        // 1. Render Saved Address Cards
+        if (savedAddresses.length > 0) {
+            savedAddressCards.innerHTML = '';
+
+            savedAddresses.forEach(addr => {
+                const card = document.createElement('div');
+                card.className = `address-card ${selectedLocation?.id === addr.id ? 'selected' : ''}`;
+                card.dataset.id = addr.id;
+
+                // Icon based on label
+                let icon = '📍';
+                if (addr.label === 'Home') icon = '🏠';
+                if (addr.label === 'Work') icon = '🏢';
+
+                card.innerHTML = `
+                    <div class="address-card-header">
+                        <div class="address-label">${icon} ${addr.label}</div>
+                        <div class="address-check">✓</div>
+                    </div>
+                    <div class="address-details">
+                        <strong>${addr.doorNo ? addr.doorNo + ', ' : ''}${addr.line1}</strong><br>
+                        ${addr.line2 ? addr.line2 + ', ' : ''}${addr.city} - ${addr.pincode}
+                    </div>
+                    <div class="address-phone">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.05 12.05 0 0 0 .57 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.05 12.05 0 0 0 2.81.57A2 2 0 0 1 22 16.92z"/></svg>
+                        ${addr.phone}
+                    </div>
+                `;
+
+                // Selection Logic
+                card.addEventListener('click', () => {
+                    selectAddress(addr);
+                });
+
+                // Auto-select logic if matches selectedLocation (or fallback to last used)
+                if (selectedLocation?.id === addr.id) {
+                    selectAddress(addr);
+                }
+
+                savedAddressCards.appendChild(card);
+            });
+
+            // If no address selected but we have saved ones, select the last one
+            if (!selectedLocation && savedAddresses.length > 0) {
+                selectAddress(savedAddresses[savedAddresses.length - 1]);
+            }
+
+            addNewAddressBtn.style.display = 'flex';
+            inlineAddressForm.style.display = 'none';
+
+        } else {
+            // No saved addresses -> Show form immediately
+            savedAddressCards.innerHTML = '';
+            addNewAddressBtn.style.display = 'none';
+            inlineAddressForm.style.display = 'block';
+
+            // Auto-fill Name from Firebase if available
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                const user = firebase.auth().currentUser;
+                if (user && document.getElementById('cartAddrName')) {
+                    document.getElementById('cartAddrName').value = user.displayName || '';
+                }
+            }
+        }
+    }
+
+    function selectAddress(addr) {
+        // Visual selection
+        document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
+        const card = document.querySelector(`.address-card[data-id="${addr.id}"]`);
+        if (card) card.classList.add('selected');
+
+        // Update Hidden Fields for Checkout
+        document.getElementById('userName').value = document.getElementById('cartAddrName')?.value || 'Guest'; // Fallback
+        document.getElementById('userPhone').value = addr.phone;
+
+        // Construct full address string
+        const parts = [
+            addr.doorNo, addr.line1, addr.line2, addr.landmark, addr.city, addr.state, addr.pincode
+        ].filter(Boolean);
+        const uniqueParts = [...new Set(parts)]; // Simple dedupe
+        document.getElementById('userAddress').value = uniqueParts.join(', ');
+
+        // Persist selection
+        localStorage.setItem('savourlySelectedLocation', JSON.stringify({
+            type: 'saved',
+            id: addr.id,
+            display: addr.label,
+            full: document.getElementById('userAddress').value
+        }));
+
+        // Hide form if open
+        inlineAddressForm.style.display = 'none';
+        addNewAddressBtn.style.display = 'flex';
+    }
+
+    // Toggle Add Address Form
+    addNewAddressBtn?.addEventListener('click', () => {
+        addNewAddressBtn.style.display = 'none';
+        inlineAddressForm.style.display = 'block';
+        // Auto-fill name again just in case
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+            const user = firebase.auth().currentUser;
+            if (user) document.getElementById('cartAddrName').value = user.displayName || '';
+        }
+    });
+
+    // Label Selection
+    cartLabelOptions?.addEventListener('click', (e) => {
+        if (e.target.classList.contains('label-btn')) {
+            document.querySelectorAll('#cartLabelOptions .label-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            cartSelectedLabel = e.target.dataset.label;
+        }
+    });
+
+    // Use My Location (GPS)
+    cartUseLocationBtn?.addEventListener('click', () => {
+        const btn = cartUseLocationBtn;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Detecting...';
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                try {
+                    const { latitude, longitude } = position.coords;
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                    const data = await response.json();
+
+                    document.getElementById('cartAddrCity').value = data.address.city || data.address.town || '';
+                    document.getElementById('cartAddrState').value = data.address.state || 'Tamil Nadu';
+                    document.getElementById('cartAddrPincode').value = data.address.postcode || '';
+                    document.getElementById('cartAddrRoad').value = data.address.road || data.address.suburb || '';
+
+                    btn.innerHTML = '✓ Location Detected';
+                    setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+                } catch (err) {
+                    btn.innerHTML = '❌ Failed';
+                    setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+                }
+            });
+        }
+    });
+
+    // Save New Address
+    saveCartAddressBtn?.addEventListener('click', () => {
+        // Basic Validation
+        const required = ['cartAddrName', 'cartAddrPhone', 'cartAddrHouse', 'cartAddrRoad', 'cartAddrPincode', 'cartAddrCity'];
+        let isValid = true;
+        required.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el.value.trim()) {
+                el.style.borderColor = 'red';
+                isValid = false;
+            } else {
+                el.style.borderColor = '';
+            }
+        });
+
+        if (!isValid) return;
+
+        const newAddr = {
+            id: Date.now(),
+            label: cartSelectedLabel,
+            doorNo: document.getElementById('cartAddrHouse').value,
+            line1: document.getElementById('cartAddrRoad').value,
+            line2: '',
+            landmark: document.getElementById('cartAddrLandmark').value,
+            city: document.getElementById('cartAddrCity').value,
+            state: document.getElementById('cartAddrState').value,
+            pincode: document.getElementById('cartAddrPincode').value,
+            phone: document.getElementById('cartAddrPhone').value
+        };
+
+        // Save to localStorage
+        const savedAddresses = JSON.parse(localStorage.getItem('savourlyAddresses')) || [];
+        savedAddresses.push(newAddr);
+        localStorage.setItem('savourlyAddresses', JSON.stringify(savedAddresses));
+
+        // Re-render and auto-select
+        renderDeliverySection();
+    });
+
+    // Initial Render
+    renderDeliverySection();
+
     // Apply coupon button
     applyCouponBtn?.addEventListener('click', applyCoupon);
 

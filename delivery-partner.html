@@ -984,47 +984,8 @@
             "Slight delay, will update soon"
         ];
 
-        // Mock orders data
-        let orders = [
-            {
-                id: 'ORD' + Date.now(),
-                customer: { name: 'Priya Sharma', phone: '+91 98765 43210', initials: 'PS' },
-                items: [{ name: 'Weekly Meal Plan - Silver', qty: 1, price: 1300 }],
-                address: '42, 2nd Cross Street, Anna Nagar East, Chennai - 600102',
-                status: 'new',
-                time: '2 mins ago',
-                amount: 1300
-            },
-            {
-                id: 'ORD' + (Date.now() + 1),
-                customer: { name: 'Rahul Verma', phone: '+91 87654 32109', initials: 'RV' },
-                items: [{ name: 'Monthly Transform Plan', qty: 1, price: 4500 }],
-                address: '15, 4th Main Road, Velachery, Chennai - 600042',
-                status: 'new',
-                time: '5 mins ago',
-                amount: 4500
-            }
-        ];
-
-        // Load orders from localStorage
-        const savedOrders = JSON.parse(localStorage.getItem('savourlyOrders')) || [];
-        savedOrders.forEach(order => {
-            if (!order.deliveryStatus) {
-                orders.push({
-                    id: order.id,
-                    customer: {
-                        name: order.customer?.name || 'Customer',
-                        phone: order.customer?.phone || 'N/A',
-                        initials: (order.customer?.name || 'C').substring(0, 2).toUpperCase()
-                    },
-                    items: order.items.map(i => ({ name: i.name, qty: i.quantity || 1, price: i.price })),
-                    address: order.customer?.address || 'Address not provided',
-                    status: 'new',
-                    time: 'Just now',
-                    amount: order.total
-                });
-            }
-        });
+        // Orders loaded from backend API after auth
+        let orders = [];
 
         let currentTab = 'new';
         let pendingOrderId = null;
@@ -1340,45 +1301,61 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-        const DELIVERY_EMAILS = ['delivery@savourly.in'];
-
+        // Auth guard — let the backend verify the delivery role via credentials.json
         firebase.auth().onAuthStateChanged(async (user) => {
-            if (!user || !DELIVERY_EMAILS.includes(user.email.toLowerCase())) {
-                alert('Access denied. Delivery partner credentials required.');
-                window.location.href = 'index.html';
+            if (!user) {
+                alert('Please log in as a delivery partner.');
+                window.location.href = 'signin.html';
                 return;
             }
 
-            // Delivery partner authenticated — fetch live orders from MongoDB
             try {
                 const token = await user.getIdToken();
+
+                // Call the orders endpoint; server's requireRole('admin','delivery')
+                // middleware will return 403 if user isn't authorized
                 const response = await fetch('/api/orders', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+
+                if (response.status === 403) {
+                    alert('Access denied. Delivery partner credentials required.');
+                    window.location.href = 'index.html';
+                    return;
+                }
 
                 if (response.ok) {
                     const data = await response.json();
                     if (data.orders && data.orders.length > 0) {
                         // Transform API orders to match the format expected by renderOrders()
-                        orders = data.orders.map(order => ({
-                            id: order.orderId,
-                            customer: order.customerDetails.name,
-                            phone: order.customerDetails.phone,
-                            address: order.customerDetails.address,
-                            items: order.items.map(i => `${i.planName} × ${i.quantity}`).join(', '),
-                            total: '₹' + order.totalPrice.toLocaleString('en-IN'),
-                            status: order.status === 'Pending' ? 'new'
-                                : order.status === 'Preparing' ? 'preparing'
-                                    : order.status === 'Out for Delivery' ? 'picked'
-                                        : 'delivered',
-                            time: new Date(order.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
-                            mongoId: order.orderId
-                        }));
-                        renderOrders();
+                        orders = data.orders.map(order => {
+                            const name = order.customerDetails?.name || 'Customer';
+                            return {
+                                id: order.orderId,
+                                customer: {
+                                    name: name,
+                                    phone: order.customerDetails?.phone || 'N/A',
+                                    initials: name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()
+                                },
+                                items: order.items.map(i => ({ name: i.planName, qty: i.quantity || 1, price: i.price })),
+                                address: order.customerDetails?.address || 'Address not provided',
+                                status: order.status === 'Pending' ? 'new'
+                                    : order.status === 'Preparing' ? 'preparing'
+                                        : order.status === 'Out for Delivery' ? 'outForDelivery'
+                                            : order.status === 'Delivered' ? 'delivered'
+                                                : 'new',
+                                time: new Date(order.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+                                amount: order.totalPrice,
+                                mongoId: order.orderId
+                            };
+                        });
                     }
+                    renderOrders();
                 }
             } catch (err) {
                 console.error('Failed to fetch delivery orders:', err);
+                alert('Access denied. Delivery partner credentials required.');
+                window.location.href = 'index.html';
             }
         });
     </script>

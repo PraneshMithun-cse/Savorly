@@ -290,13 +290,19 @@
                 renderOrders(data.orders);
             } catch (error) {
                 console.error('Error loading orders:', error);
-                // Fallback: try localStorage
-                const localOrders = JSON.parse(localStorage.getItem('savourlyOrders')) || [];
-                if (localOrders.length > 0) {
-                    renderLocalOrders(localOrders);
-                } else {
-                    showEmpty();
-                }
+                // Show error state — never fall back to unscoped localStorage data
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <h2>Unable to load orders</h2>
+                        <p>Please check your connection and try again.</p>
+                        <a href="orders.html">Retry</a>
+                    </div>
+                `;
             }
         });
 

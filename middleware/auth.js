@@ -11,18 +11,22 @@ function loadCredentials() {
         const data = fs.readFileSync(CREDENTIALS_PATH, 'utf8');
         return JSON.parse(data);
     } catch (err) {
-        // If file doesn't exist, create with defaults
+        // If file doesn't exist, return defaults (don't write on read-only FS like Vercel)
         const defaults = {
             admins: ['admin@savourly.in'],
             delivery: ['delivery@savourly.in']
         };
-        saveCredentials(defaults);
+        try { saveCredentials(defaults); } catch (e) { /* read-only FS, ignore */ }
         return defaults;
     }
 }
 
 function saveCredentials(creds) {
-    fs.writeFileSync(CREDENTIALS_PATH, JSON.stringify(creds, null, 2), 'utf8');
+    try {
+        fs.writeFileSync(CREDENTIALS_PATH, JSON.stringify(creds, null, 2), 'utf8');
+    } catch (err) {
+        console.warn('Could not save credentials (read-only filesystem):', err.message);
+    }
 }
 
 function getAdminEmails() {
