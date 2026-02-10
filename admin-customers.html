@@ -339,66 +339,99 @@
         <div class="customers-grid" id="customersGrid"></div>
     </main>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script>
-        const customers = [
-            {
-                name: 'Priya Sharma', email: 'priya.sharma@email.com', phone: '+91 98765 43210', initials: 'PS', totalOrders: 24, totalSpent: '₹32,450',
-                orders: [{ plan: 'Weekly Meal Plan', meal: 'Meal 1', status: 'preparing' }, { plan: 'Single Day Trial', meal: 'Lunch', status: 'delivered' }]
-            },
-            {
-                name: 'Rahul Verma', email: 'rahul.v@email.com', phone: '+91 87654 32109', initials: 'RV', totalOrders: 12, totalSpent: '₹15,800',
-                orders: [{ plan: 'Monthly Transform', meal: 'Full Day', status: 'pending' }]
-            },
-            {
-                name: 'Anita Patel', email: 'anita.patel@email.com', phone: '+91 76543 21098', initials: 'AP', totalOrders: 8, totalSpent: '₹9,200',
-                orders: [{ plan: 'Weekly Meal Plan', meal: 'Meal 2', status: 'delivered' }]
-            },
-            {
-                name: 'Karthik R', email: 'karthik.r@email.com', phone: '+91 99887 76655', initials: 'KR', totalOrders: 31, totalSpent: '₹45,600',
-                orders: [{ plan: 'Weekly Meal Plan', meal: 'Meal 3', status: 'preparing' }, { plan: 'Weekly Meal Plan', meal: 'Meal 1', status: 'pending' }]
-            },
-            {
-                name: 'Deepa M', email: 'deepa.m@email.com', phone: '+91 88776 65544', initials: 'DM', totalOrders: 5, totalSpent: '₹6,800',
-                orders: []
-            },
-            {
-                name: 'Arjun Kumar', email: 'arjun.k@email.com', phone: '+91 77665 54433', initials: 'AK', totalOrders: 18, totalSpent: '₹22,100',
-                orders: [{ plan: 'Monthly Transform', meal: 'Lunch + Dinner', status: 'preparing' }]
-            },
-        ];
+        const firebaseConfig = {
+            apiKey: "AIzaSyAbOyzOi3xqyXNLWrmkL7pqMrxk_opjW1I",
+            authDomain: "savorly-d2e63.firebaseapp.com",
+            projectId: "savorly-d2e63",
+            storageBucket: "savorly-d2e63.firebasestorage.app",
+            messagingSenderId: "820941077673",
+            appId: "1:820941077673:web:feffe61f09d5970c477db8",
+            measurementId: "G-E3YQ1VSL75"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+        let authToken = null;
+        let allCustomers = [];
+
+        function getInitials(name) {
+            return (name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        }
 
         function renderCustomers(filter = '') {
             const grid = document.getElementById('customersGrid');
-            const filtered = filter ? customers.filter(c => c.name.toLowerCase().includes(filter.toLowerCase())) : customers;
+            const filtered = filter
+                ? allCustomers.filter(c => (c.name || '').toLowerCase().includes(filter.toLowerCase()) || (c.email || '').toLowerCase().includes(filter.toLowerCase()))
+                : allCustomers;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="text-align:center; padding:60px; color:var(--text-muted); font-size:16px;">No customers found</div>';
+                return;
+            }
 
             grid.innerHTML = filtered.map(c => `
                 <div class="customer-card">
                     <div class="customer-header">
-                        <div class="customer-avatar">${c.initials}</div>
+                        <div class="customer-avatar">${getInitials(c.name)}</div>
                         <div class="customer-info">
-                            <h3>${c.name}</h3>
-                            <p>${c.email}</p>
+                            <h3>${c.name || 'Unknown'}</h3>
+                            <p>${c.email || 'No email'}</p>
                         </div>
                         <div class="customer-stats">
-                            <div><strong>${c.totalOrders}</strong><span>Orders</span></div>
-                            <div><strong>${c.totalSpent}</strong><span>Spent</span></div>
+                            <div><strong>${c.orderCount}</strong><span>Orders</span></div>
+                            <div><strong>₹${(c.totalSpent || 0).toLocaleString('en-IN')}</strong><span>Spent</span></div>
                         </div>
                     </div>
                     <div class="ongoing-orders">
-                        <h4>Ongoing Orders (${c.orders.length})</h4>
-                        ${c.orders.length ? c.orders.map(o => `
-                            <div class="order-item">
-                                <div class="order-item-info"><strong>${o.plan}</strong><span>${o.meal}</span></div>
-                                <span class="order-item-status ${o.status}">${o.status}</span>
+                        <h4>Customer Details</h4>
+                        <div class="order-item">
+                            <div class="order-item-info">
+                                <strong>📞 ${c.phone || 'N/A'}</strong>
+                                <span>First order: ${c.firstOrder ? new Date(c.firstOrder).toLocaleDateString('en-IN') : 'N/A'}</span>
                             </div>
-                        `).join('') : '<p style="color: var(--text-muted); font-size: 13px;">No ongoing orders</p>'}
+                            <span class="order-item-status delivered" style="background:rgba(34,197,94,0.15);color:var(--success);">
+                                Last: ${c.lastOrder ? new Date(c.lastOrder).toLocaleDateString('en-IN') : 'N/A'}
+                            </span>
+                        </div>
                     </div>
                 </div>
             `).join('');
         }
 
+        async function loadCustomers() {
+            try {
+                const res = await fetch('/api/admin/customers', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                if (!res.ok) throw new Error('Failed to fetch customers');
+                const data = await res.json();
+                allCustomers = data.customers;
+                renderCustomers();
+            } catch (err) {
+                console.error('Load customers error:', err);
+                document.getElementById('customersGrid').innerHTML =
+                    '<div style="text-align:center; padding:60px; color:var(--text-muted);">Failed to load customers</div>';
+            }
+        }
+
         document.getElementById('searchInput').addEventListener('input', (e) => renderCustomers(e.target.value));
-        renderCustomers();
+
+        // Auth guard + init
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (!user) { window.location.href = 'signin.html'; return; }
+            try {
+                authToken = await user.getIdToken();
+                const test = await fetch('/api/orders/stats', { headers: { 'Authorization': 'Bearer ' + authToken } });
+                if (test.status === 403) { alert('Admin access required.'); window.location.href = 'index.html'; return; }
+                await loadCustomers();
+            } catch (err) {
+                console.error('Auth error:', err);
+                window.location.href = 'index.html';
+            }
+        });
     </script>
 </body>
 

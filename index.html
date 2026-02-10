@@ -836,7 +836,25 @@
     </div>
 
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script>
+        // Firebase configuration (shared across the app)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAbOyzOi3xqyXNLWrmkL7pqMrxk_opjW1I",
+            authDomain: "savorly-d2e63.firebaseapp.com",
+            projectId: "savorly-d2e63",
+            storageBucket: "savorly-d2e63.firebasestorage.app",
+            messagingSenderId: "820941077673",
+            appId: "1:820941077673:web:feffe61f09d5970c477db8",
+            measurementId: "G-E3YQ1VSL75"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    </script>
+
     <script src="assets/js/script.js"></script>
+    <script src="assets/js/auth-state.js"></script>
 </body>
 
 </html>

@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Handle checkout
-    function handleCheckout() {
+    async function handleCheckout() {
         if (cart.length === 0) {
             showToast('Your cart is empty!');
             return;
@@ -317,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const userAddress = document.getElementById('userAddress')?.value.trim();
         const upiId = document.getElementById('upiId')?.value.trim();
 
-        // Validate user details - O(1) validation
+        // Validate user details
         if (!userName) {
             showToast('Please enter your name');
             document.getElementById('userName')?.focus();
@@ -351,28 +351,177 @@ document.addEventListener('DOMContentLoaded', () => {
             'upi': `UPI (${upiId})`
         };
 
-        // Save order to localStorage
-        const order = {
-            id: 'ORD' + Date.now(),
-            items: cart,
-            customer: { name: userName, phone: userPhone, address: userAddress },
-            payment: selectedPayment,
-            subtotal,
-            discount,
-            total,
-            coupon: appliedCoupon,
-            timestamp: new Date().toISOString()
+        // Prepare order data for API
+        const orderData = {
+            customerDetails: {
+                name: userName,
+                phone: userPhone,
+                address: userAddress,
+                email: ''
+            },
+            items: cart.map(item => ({
+                planName: item.name,
+                price: item.price,
+                quantity: item.quantity || 1
+            })),
+            totalPrice: total,
+            paymentMethod: selectedPayment
         };
-        const orders = JSON.parse(localStorage.getItem('savourlyOrders')) || [];
-        orders.push(order);
-        localStorage.setItem('savourlyOrders', JSON.stringify(orders));
 
-        // Clear cart before redirecting
-        cart = [];
-        saveCart();
+        // Disable checkout button to prevent double-click
+        if (checkoutBtnMain) {
+            checkoutBtnMain.disabled = true;
+            const btnText = checkoutBtnMain.querySelector('span');
+            if (btnText) btnText.textContent = 'Placing Order...';
+        }
 
-        // Redirect to order tracking page
-        window.location.href = `order-tracking.html?id=${order.id}`;
+        try {
+            // Try to get Firebase token for authenticated API request
+            let token = localStorage.getItem('savourlyAuthToken');
+
+            // If firebase is available, get a fresh token
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                const user = firebase.auth().currentUser;
+                if (user) {
+                    token = await user.getIdToken(true);
+                    localStorage.setItem('savourlyAuthToken', token);
+                    orderData.customerDetails.email = user.email;
+                }
+            }
+
+            if (token) {
+                // POST to backend API
+                const response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(orderData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+
+                    // Also save to localStorage for order tracking page
+                    const localOrder = {
+                        id: result.order.orderId,
+                        items: cart,
+                        customer: { name: userName, phone: userPhone, address: userAddress },
+                        payment: selectedPayment,
+                        subtotal,
+                        discount,
+                        total,
+                        coupon: appliedCoupon,
+                        timestamp: result.order.timestamp
+                    };
+                    const orders = JSON.parse(localStorage.getItem('savourlyOrders')) || [];
+                    orders.push(localOrder);
+                    localStorage.setItem('savourlyOrders', JSON.stringify(orders));
+
+                    // Clear cart and show success
+                    cart = [];
+                    saveCart();
+                    showOrderSuccess(result.order.orderId);
+                    return;
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to place order');
+                }
+            } else {
+                // No token — user not logged in, prompt to login
+                showToast('Please log in to place an order');
+                setTimeout(() => {
+                    window.location.href = 'signin.html';
+                }, 1500);
+                return;
+            }
+        } catch (error) {
+            console.error('Order error:', error);
+
+            // Fallback to localStorage-only order
+            const fallbackOrder = {
+                id: 'ORD' + Date.now(),
+                items: cart,
+                customer: { name: userName, phone: userPhone, address: userAddress },
+                payment: selectedPayment,
+                subtotal,
+                discount,
+                total,
+                coupon: appliedCoupon,
+                timestamp: new Date().toISOString()
+            };
+            const orders = JSON.parse(localStorage.getItem('savourlyOrders')) || [];
+            orders.push(fallbackOrder);
+            localStorage.setItem('savourlyOrders', JSON.stringify(orders));
+
+            cart = [];
+            saveCart();
+            showOrderSuccess(fallbackOrder.id);
+        }
+    }
+
+    // Order success overlay
+    function showOrderSuccess(orderId) {
+        const overlay = document.createElement('div');
+        overlay.id = 'orderSuccessOverlay';
+        overlay.innerHTML = `
+            <div style="
+                position: fixed; inset: 0; z-index: 10000;
+                background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+                display: flex; align-items: center; justify-content: center;
+                animation: fadeIn 0.3s ease;
+            ">
+                <div style="
+                    background: #fff; border-radius: 20px; padding: 48px 40px;
+                    text-align: center; max-width: 420px; width: 90%;
+                    box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+                    animation: scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+                ">
+                    <div style="
+                        width: 80px; height: 80px; border-radius: 50%;
+                        background: linear-gradient(135deg, #00C9A7, #00e6be);
+                        display: flex; align-items: center; justify-content: center;
+                        margin: 0 auto 20px; animation: checkPop 0.5s 0.3s both;
+                    ">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <h2 style="font-size: 24px; font-weight: 800; color: #111; margin-bottom: 8px;">
+                        Order Placed! 🎉
+                    </h2>
+                    <p style="color: #6b7280; font-size: 15px; margin-bottom: 6px;">
+                        Your order has been placed successfully.
+                    </p>
+                    <p style="
+                        color: #00C9A7; font-weight: 700; font-size: 16px;
+                        background: #f0fdf9; padding: 8px 16px; border-radius: 8px;
+                        display: inline-block; margin-bottom: 20px;
+                    ">
+                        ${orderId}
+                    </p>
+                    <p style="color: #9ca3af; font-size: 13px;">
+                        Redirecting to home page...
+                    </p>
+                </div>
+            </div>
+        `;
+
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+            @keyframes scaleIn { from { opacity: 0; transform: scale(0.85) } to { opacity: 1; transform: scale(1) } }
+            @keyframes checkPop { from { transform: scale(0) } to { transform: scale(1) } }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(overlay);
+
+        // Redirect to home after 4 seconds
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 4000);
     }
 
 

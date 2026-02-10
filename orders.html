@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders | Savourly</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00C9A7;
+            --primary-dark: #00a88c;
+            --background: #f7f8fa;
+            --surface: #ffffff;
+            --text: #111827;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-header a {
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+        }
+
+        .page-header a:hover {
+            color: var(--primary);
+        }
+
+        .page-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .order-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            transition: box-shadow 0.2s;
+        }
+
+        .order-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .order-id {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--primary);
+        }
+
+        .order-date {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-Pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-Preparing {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-Out\ for\ Delivery {
+            background: #fce7f3;
+            color: #9d174d;
+        }
+
+        .status-Delivered {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .order-items {
+            list-style: none;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+            margin-bottom: 12px;
+        }
+
+        .order-items li {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 14px;
+        }
+
+        .order-items li span:first-child {
+            color: var(--text);
+        }
+
+        .order-items li span:last-child {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .order-total span:last-child {
+            color: var(--primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .empty-state h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .empty-state a {
+            display: inline-block;
+            padding: 12px 28px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .empty-state a:hover {
+            background: var(--primary-dark);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .loading .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px;
+            }
+
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="page-header">
+        <a href="index.html">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6" />
+            </svg>
+        </a>
+        <h1>My Orders</h1>
+    </header>
+
+    <div class="container">
+        <div id="ordersContainer">
+            <div class="loading">
+                <div class="spinner"></div>
+                Loading your orders...
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAbOyzOi3xqyXNLWrmkL7pqMrxk_opjW1I",
+            authDomain: "savorly-d2e63.firebaseapp.com",
+            projectId: "savorly-d2e63",
+            storageBucket: "savorly-d2e63.firebasestorage.app",
+            messagingSenderId: "820941077673",
+            appId: "1:820941077673:web:feffe61f09d5970c477db8",
+            measurementId: "G-E3YQ1VSL75"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+        const auth = firebase.auth();
+        const container = document.getElementById('ordersContainer');
+
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'signin.html';
+                return;
+            }
+
+            try {
+                const token = await user.getIdToken();
+                const response = await fetch('/api/orders/my', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch orders');
+
+                const data = await response.json();
+                renderOrders(data.orders);
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                // Fallback: try localStorage
+                const localOrders = JSON.parse(localStorage.getItem('savourlyOrders')) || [];
+                if (localOrders.length > 0) {
+                    renderLocalOrders(localOrders);
+                } else {
+                    showEmpty();
+                }
+            }
+        });
+
+        function renderOrders(orders) {
+            if (!orders || orders.length === 0) {
+                showEmpty();
+                return;
+            }
+
+            container.innerHTML = orders.map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-id">${order.orderId}</div>
+                            <div class="order-date">${new Date(order.timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                        <span class="order-status status-${order.status}">${order.status}</span>
+                    </div>
+                    <ul class="order-items">
+                        ${order.items.map(item => `
+                            <li>
+                                <span>${item.planName} × ${item.quantity}</span>
+                                <span>₹${(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                    <div class="order-total">
+                        <span>Total</span>
+                        <span>₹${order.totalPrice.toLocaleString('en-IN')}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderLocalOrders(orders) {
+            container.innerHTML = orders.reverse().map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-id">${order.id}</div>
+                            <div class="order-date">${new Date(order.timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                        <span class="order-status status-Pending">Pending</span>
+                    </div>
+                    <ul class="order-items">
+                        ${order.items.map(item => `
+                            <li>
+                                <span>${item.name} × ${item.quantity || 1}</span>
+                                <span>₹${((item.price) * (item.quantity || 1)).toLocaleString('en-IN')}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                    <div class="order-total">
+                        <span>Total</span>
+                        <span>₹${order.total.toLocaleString('en-IN')}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showEmpty() {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <path d="M16 10a4 4 0 01-8 0"/>
+                    </svg>
+                    <h2>No orders yet</h2>
+                    <p>Browse our meal plans and place your first order!</p>
+                    <a href="index.html#plans">Browse Plans</a>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

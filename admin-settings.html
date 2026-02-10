@@ -510,10 +510,10 @@
             </div>
             <div class="section-body">
                 <p class="warning-text">
-                    <strong>Clear All Data:</strong> This will permanently delete all orders, customers, and feedback
-                    data. This action cannot be undone.
+                    <strong>Clear All Orders:</strong> This will permanently delete all orders from the database.
+                    This action cannot be undone.
                 </p>
-                <button class="danger-btn" onclick="showClearModal()">Clear All Data</button>
+                <button class="danger-btn" onclick="showClearModal()">Clear All Orders</button>
             </div>
         </div>
     </main>
@@ -521,8 +521,8 @@
     <!-- Confirmation Modal -->
     <div class="modal-overlay" id="clearModal">
         <div class="modal">
-            <h3>⚠️ Clear All Data?</h3>
-            <p>This will permanently delete all orders, customers, and feedback. This action cannot be undone.</p>
+            <h3>⚠️ Clear All Orders?</h3>
+            <p>This will permanently delete all orders from the database. This action cannot be undone.</p>
             <div class="modal-btns">
                 <button class="cancel-btn" onclick="hideModal()">Cancel</button>
                 <button class="confirm-btn" onclick="clearAllData()">Yes, Clear All</button>
@@ -533,10 +533,23 @@
     <!-- Toast -->
     <div class="toast" id="toast">Changes saved successfully!</div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script>
-        // Admin emails
-        let admins = JSON.parse(localStorage.getItem('savourlyAdmins')) || ['admin@savourly.in'];
-        let deliveryPartners = JSON.parse(localStorage.getItem('savourlyDelivery')) || ['ravi.delivery@savourly.in', 'kumar.delivery@savourly.in'];
+        const firebaseConfig = {
+            apiKey: "AIzaSyAbOyzOi3xqyXNLWrmkL7pqMrxk_opjW1I",
+            authDomain: "savorly-d2e63.firebaseapp.com",
+            projectId: "savorly-d2e63",
+            storageBucket: "savorly-d2e63.firebasestorage.app",
+            messagingSenderId: "820941077673",
+            appId: "1:820941077673:web:feffe61f09d5970c477db8",
+            measurementId: "G-E3YQ1VSL75"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+        let authToken = null;
+        let credentials = { admins: [], delivery: [] };
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
@@ -545,67 +558,116 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        function addAdmin() {
-            const input = document.getElementById('adminEmail');
-            const email = input.value.trim();
-            if (!email || !email.includes('@')) return alert('Enter a valid email');
-            if (admins.includes(email)) return alert('Email already exists');
-
-            admins.push(email);
-            localStorage.setItem('savourlyAdmins', JSON.stringify(admins));
-            renderAdmins();
-            input.value = '';
-            showToast('Admin added successfully!');
-        }
-
-        function removeAdmin(btn) {
-            const email = btn.parentElement.querySelector('span').textContent.split(' ')[0];
-            admins = admins.filter(a => a !== email);
-            localStorage.setItem('savourlyAdmins', JSON.stringify(admins));
-            renderAdmins();
-            showToast('Admin removed!');
-        }
+        // ─── Render Lists ────────────────────────────────────────────────────
 
         function renderAdmins() {
             const list = document.getElementById('adminList');
-            list.innerHTML = admins.map((email, i) => `
+            list.innerHTML = credentials.admins.map((email, i) => `
                 <div class="email-item">
                     <span>${email} ${i === 0 ? '<span class="badge">Owner</span>' : ''}</span>
-                    <button class="remove-btn" onclick="removeAdmin(this)" ${i === 0 ? 'disabled' : ''}>×</button>
+                    <button class="remove-btn" onclick="removeCredential('admin', '${email}')" ${i === 0 ? 'disabled' : ''}>×</button>
                 </div>
             `).join('');
-        }
-
-        function addDelivery() {
-            const input = document.getElementById('deliveryEmail');
-            const email = input.value.trim();
-            if (!email || !email.includes('@')) return alert('Enter a valid email');
-            if (deliveryPartners.includes(email)) return alert('Email already exists');
-
-            deliveryPartners.push(email);
-            localStorage.setItem('savourlyDelivery', JSON.stringify(deliveryPartners));
-            renderDelivery();
-            input.value = '';
-            showToast('Delivery partner added!');
-        }
-
-        function removeDelivery(btn) {
-            const email = btn.parentElement.querySelector('span').textContent;
-            deliveryPartners = deliveryPartners.filter(d => d !== email);
-            localStorage.setItem('savourlyDelivery', JSON.stringify(deliveryPartners));
-            renderDelivery();
-            showToast('Partner removed!');
         }
 
         function renderDelivery() {
             const list = document.getElementById('deliveryList');
-            list.innerHTML = deliveryPartners.map(email => `
+            list.innerHTML = credentials.delivery.map(email => `
                 <div class="email-item">
                     <span>${email}</span>
-                    <button class="remove-btn" onclick="removeDelivery(this)">×</button>
+                    <button class="remove-btn" onclick="removeCredential('delivery', '${email}')">×</button>
                 </div>
             `).join('');
         }
+
+        // ─── API Calls ───────────────────────────────────────────────────────
+
+        async function loadCredentials() {
+            try {
+                const res = await fetch('/api/admin/credentials', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                if (!res.ok) throw new Error('Failed to load credentials');
+                credentials = await res.json();
+                renderAdmins();
+                renderDelivery();
+            } catch (err) {
+                console.error('Load credentials error:', err);
+            }
+        }
+
+        async function addAdmin() {
+            const input = document.getElementById('adminEmail');
+            const email = input.value.trim();
+            if (!email || !email.includes('@')) return alert('Enter a valid email');
+
+            try {
+                const res = await fetch('/api/admin/credentials', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + authToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ type: 'admin', email })
+                });
+                const data = await res.json();
+                if (!res.ok) return alert(data.error || 'Failed to add');
+                credentials = data.credentials;
+                renderAdmins();
+                input.value = '';
+                showToast('Admin added successfully!');
+            } catch (err) {
+                alert('Error adding admin: ' + err.message);
+            }
+        }
+
+        async function addDelivery() {
+            const input = document.getElementById('deliveryEmail');
+            const email = input.value.trim();
+            if (!email || !email.includes('@')) return alert('Enter a valid email');
+
+            try {
+                const res = await fetch('/api/admin/credentials', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + authToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ type: 'delivery', email })
+                });
+                const data = await res.json();
+                if (!res.ok) return alert(data.error || 'Failed to add');
+                credentials = data.credentials;
+                renderDelivery();
+                input.value = '';
+                showToast('Delivery partner added!');
+            } catch (err) {
+                alert('Error adding partner: ' + err.message);
+            }
+        }
+
+        async function removeCredential(type, email) {
+            try {
+                const res = await fetch('/api/admin/credentials', {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': 'Bearer ' + authToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ type, email })
+                });
+                const data = await res.json();
+                if (!res.ok) return alert(data.error || 'Failed to remove');
+                credentials = data.credentials;
+                renderAdmins();
+                renderDelivery();
+                showToast(type === 'admin' ? 'Admin removed!' : 'Partner removed!');
+            } catch (err) {
+                alert('Error removing: ' + err.message);
+            }
+        }
+
+        // ─── Danger Zone ─────────────────────────────────────────────────────
 
         function showClearModal() {
             document.getElementById('clearModal').classList.add('active');
@@ -615,29 +677,35 @@
             document.getElementById('clearModal').classList.remove('active');
         }
 
-        function clearAllData() {
-            localStorage.removeItem('savourlyCart');
-            localStorage.removeItem('savourlyAddresses');
-            localStorage.removeItem('savourlySelectedLocation');
-            hideModal();
-            showToast('All data cleared!');
-        }
-
-        // Init - Save defaults to localStorage if not already there
-        function initEmailLists() {
-            // If no admins in localStorage, save the defaults
-            if (!localStorage.getItem('savourlyAdmins')) {
-                localStorage.setItem('savourlyAdmins', JSON.stringify(admins));
-            }
-            // If no delivery partners in localStorage, save the defaults
-            if (!localStorage.getItem('savourlyDelivery')) {
-                localStorage.setItem('savourlyDelivery', JSON.stringify(deliveryPartners));
+        async function clearAllData() {
+            try {
+                const res = await fetch('/api/admin/orders', {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                const data = await res.json();
+                if (!res.ok) return alert(data.error || 'Failed to clear');
+                hideModal();
+                showToast(data.message || 'All orders cleared!');
+            } catch (err) {
+                alert('Error clearing data: ' + err.message);
             }
         }
 
-        initEmailLists();
-        renderAdmins();
-        renderDelivery();
+        // ─── Auth Guard + Init ───────────────────────────────────────────────
+
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (!user) { window.location.href = 'signin.html'; return; }
+            try {
+                authToken = await user.getIdToken();
+                const test = await fetch('/api/orders/stats', { headers: { 'Authorization': 'Bearer ' + authToken } });
+                if (test.status === 403) { alert('Admin access required.'); window.location.href = 'index.html'; return; }
+                await loadCredentials();
+            } catch (err) {
+                console.error('Auth error:', err);
+                window.location.href = 'index.html';
+            }
+        });
     </script>
 </body>
 

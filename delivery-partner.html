@@ -1324,6 +1324,64 @@
         // Initialize
         renderOrders();
     </script>
+
+    <!-- Firebase SDK + Auth Guard -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAbOyzOi3xqyXNLWrmkL7pqMrxk_opjW1I",
+            authDomain: "savorly-d2e63.firebaseapp.com",
+            projectId: "savorly-d2e63",
+            storageBucket: "savorly-d2e63.firebasestorage.app",
+            messagingSenderId: "820941077673",
+            appId: "1:820941077673:web:feffe61f09d5970c477db8",
+            measurementId: "G-E3YQ1VSL75"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+        const DELIVERY_EMAILS = ['delivery@savourly.in'];
+
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (!user || !DELIVERY_EMAILS.includes(user.email.toLowerCase())) {
+                alert('Access denied. Delivery partner credentials required.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Delivery partner authenticated — fetch live orders from MongoDB
+            try {
+                const token = await user.getIdToken();
+                const response = await fetch('/api/orders', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.orders && data.orders.length > 0) {
+                        // Transform API orders to match the format expected by renderOrders()
+                        orders = data.orders.map(order => ({
+                            id: order.orderId,
+                            customer: order.customerDetails.name,
+                            phone: order.customerDetails.phone,
+                            address: order.customerDetails.address,
+                            items: order.items.map(i => `${i.planName} × ${i.quantity}`).join(', '),
+                            total: '₹' + order.totalPrice.toLocaleString('en-IN'),
+                            status: order.status === 'Pending' ? 'new'
+                                : order.status === 'Preparing' ? 'preparing'
+                                    : order.status === 'Out for Delivery' ? 'picked'
+                                        : 'delivered',
+                            time: new Date(order.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+                            mongoId: order.orderId
+                        }));
+                        renderOrders();
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to fetch delivery orders:', err);
+            }
+        });
+    </script>
 </body>
 
 </html>

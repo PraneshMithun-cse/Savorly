@@ -791,8 +791,8 @@
                     </div>
                     <div class="stat-trend up">↑ 12.5%</div>
                 </div>
-                <div class="stat-value" id="totalRevenue">₹1,24,580</div>
-                <div class="stat-label">Total Revenue Today</div>
+                <div class="stat-value" id="totalRevenue">₹0</div>
+                <div class="stat-label">Today's Revenue</div>
             </div>
             <div class="stat-card">
                 <div class="stat-header">
@@ -806,8 +806,8 @@
                     </div>
                     <div class="stat-trend up">↑ 8.2%</div>
                 </div>
-                <div class="stat-value" id="totalOrders">156</div>
-                <div class="stat-label">Total Orders Today</div>
+                <div class="stat-value" id="totalOrders">0</div>
+                <div class="stat-label">Today's Orders</div>
             </div>
             <div class="stat-card">
                 <div class="stat-header">
@@ -822,7 +822,7 @@
                     </div>
                     <div class="stat-trend down">↓ 2.1%</div>
                 </div>
-                <div class="stat-value" id="avgDelivery">28 min</div>
+                <div class="stat-value" id="avgDeliveryTime">-- min</div>
                 <div class="stat-label">Avg Delivery Time</div>
             </div>
             <div class="stat-card">
@@ -838,8 +838,8 @@
                     </div>
                     <div class="stat-trend up">↑ 15.3%</div>
                 </div>
-                <div class="stat-value" id="newCustomers">42</div>
-                <div class="stat-label">New Customers Today</div>
+                <div class="stat-value" id="newCustomers">0</div>
+                <div class="stat-label">Total Customers</div>
             </div>
         </div>
 
@@ -970,47 +970,108 @@
         </div>
     </main>
 
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script>
-        // Mock Data - Replace with real API later
-        const mockOrders = [
-            { id: '#ORD-2847', customer: 'Priya Sharma', phone: '+91 98xxx', items: '2 Meals + 1 Snack', amount: '₹847', status: 'preparing', time: '2 min' },
-            { id: '#ORD-2846', customer: 'Rahul Verma', phone: '+91 87xxx', items: '1 Meal Plan', amount: '₹599', status: 'pending', time: '5 min' },
-            { id: '#ORD-2845', customer: 'Anita Patel', phone: '+91 76xxx', items: '3 Meals', amount: '₹1,247', status: 'delivered', time: '12 min' },
-            { id: '#ORD-2844', customer: 'Karthik R', phone: '+91 99xxx', items: '2 Snacks', amount: '₹398', status: 'preparing', time: '8 min' },
-            { id: '#ORD-2843', customer: 'Deepa M', phone: '+91 88xxx', items: '1 Meal', amount: '₹449', status: 'delivered', time: '25 min' },
-            { id: '#ORD-2842', customer: 'Arjun K', phone: '+91 77xxx', items: '4 Meals', amount: '₹1,796', status: 'cancelled', time: '30 min' }
-        ];
+        const firebaseConfig = {
+            apiKey: "AIzaSyAbOyzOi3xqyXNLWrmkL7pqMrxk_opjW1I",
+            authDomain: "savorly-d2e63.firebaseapp.com",
+            projectId: "savorly-d2e63",
+            storageBucket: "savorly-d2e63.firebasestorage.app",
+            messagingSenderId: "820941077673",
+            appId: "1:820941077673:web:feffe61f09d5970c477db8",
+            measurementId: "G-E3YQ1VSL75"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-        const mockFeedback = [
-            { name: 'Sneha R', initials: 'SR', stars: 5, text: 'Amazing food quality! The portion size is perfect and delivery was super fast.' },
-            { name: 'Vikram S', initials: 'VS', stars: 4, text: 'Good variety of healthy options. Would love more South Indian choices.' },
-            { name: 'Meera K', initials: 'MK', stars: 5, text: 'Best meal delivery service in Chennai! Fresh ingredients every time.' }
-        ];
+        let authToken = null;
 
-        // Render Orders
-        function renderOrders() {
+        // Time display
+        function updateTime() {
+            const now = new Date();
+            const el = document.getElementById('currentTime');
+            if (el) el.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Helper: relative time
+        function timeAgo(dateStr) {
+            const diff = Date.now() - new Date(dateStr).getTime();
+            const mins = Math.floor(diff / 60000);
+            if (mins < 1) return 'Just now';
+            if (mins < 60) return mins + ' min ago';
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return hrs + 'h ago';
+            return Math.floor(hrs / 24) + 'd ago';
+        }
+
+        // Fetch data with auth
+        async function apiFetch(url) {
+            const res = await fetch(url, {
+                headers: { 'Authorization': 'Bearer ' + authToken }
+            });
+            if (!res.ok) throw new Error('API error: ' + res.status);
+            return res.json();
+        }
+
+        // Render dashboard stats
+        function renderStats(stats) {
+            const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+
+            el('totalRevenue', '₹' + (stats.todayRevenue || 0).toLocaleString('en-IN'));
+            el('totalOrders', stats.todayOrders || 0);
+            el('avgDeliveryTime', (stats.avgDeliveryMinutes || 0) + ' min');
+            el('newCustomers', stats.totalCustomers || 0);
+
+            // Delivery stats
+            el('activeDeliveries', stats.outForDelivery || 0);
+            el('completedDeliveries', stats.todayDelivered || 0);
+            el('pendingPickup', stats.pending || 0);
+            el('cancelledOrders', stats.cancelled || 0);
+
+            // Update sidebar badge
+            const badge = document.querySelector('.nav-badge');
+            if (badge) badge.textContent = stats.pending || 0;
+        }
+
+        // Render recent orders
+        function renderOrders(orders) {
             const table = document.getElementById('ordersTable');
-            table.innerHTML = mockOrders.map(o => `
+            if (!table) return;
+
+            if (!orders || orders.length === 0) {
+                table.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">No orders yet</div>';
+                return;
+            }
+
+            table.innerHTML = orders.slice(0, 8).map(o => `
                 <div class="order-row">
-                    <span class="order-id">${o.id}</span>
+                    <span class="order-id">${o.orderId}</span>
                     <div class="order-customer">
-                        <strong>${o.customer}</strong>
-                        <span>${o.phone}</span>
+                        <strong>${o.customerDetails.name}</strong>
+                        <span>${o.customerDetails.phone}</span>
                     </div>
-                    <span class="order-items">${o.items}</span>
-                    <span class="order-amount">${o.amount}</span>
+                    <span class="order-items">${o.items.map(i => i.quantity + ' ' + i.planName).join(', ')}</span>
+                    <span class="order-amount">₹${o.totalPrice.toLocaleString('en-IN')}</span>
                     <div class="order-status">
-                        <span class="status-badge ${o.status}">${o.status}</span>
+                        <span class="status-badge ${o.status.toLowerCase().replace(/\s+/g, '-')}">${o.status}</span>
                     </div>
-                    <span class="order-time">${o.time} ago</span>
+                    <span class="order-time">${timeAgo(o.timestamp)}</span>
                 </div>
             `).join('');
         }
 
-        // Render Feedback
+        // Render feedback (static for now since no feedback API)
         function renderFeedback() {
             const list = document.getElementById('feedbackList');
-            list.innerHTML = mockFeedback.map(f => `
+            if (!list) return;
+            const feedback = [
+                { name: 'Sneha R', initials: 'SR', stars: 5, text: 'Amazing food quality! The portion size is perfect and delivery was super fast.' },
+                { name: 'Vikram S', initials: 'VS', stars: 4, text: 'Good variety of healthy options. Would love more South Indian choices.' },
+                { name: 'Meera K', initials: 'MK', stars: 5, text: 'Best meal delivery service in Chennai! Fresh ingredients every time.' }
+            ];
+            list.innerHTML = feedback.map(f => `
                 <div class="feedback-item">
                     <div class="feedback-header">
                         <div class="feedback-user">
@@ -1024,27 +1085,60 @@
             `).join('');
         }
 
-        // Update Time
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        // Load all dashboard data
+        async function loadDashboard() {
+            try {
+                const [stats, ordersData] = await Promise.all([
+                    apiFetch('/api/orders/stats'),
+                    apiFetch('/api/orders?limit=8')
+                ]);
+
+                renderStats(stats);
+                renderOrders(ordersData.orders);
+                renderFeedback();
+            } catch (err) {
+                console.error('Dashboard load error:', err);
+            }
         }
 
-        // Refresh Animation
+        // Refresh button
         document.getElementById('refreshBtn').addEventListener('click', function () {
             this.classList.add('loading');
-            setTimeout(() => {
-                this.classList.remove('loading');
-                renderOrders();
-                renderFeedback();
-            }, 800);
+            loadDashboard().finally(() => {
+                setTimeout(() => this.classList.remove('loading'), 500);
+            });
         });
 
-        // Init
-        renderOrders();
-        renderFeedback();
-        updateTime();
-        setInterval(updateTime, 1000);
+        // Auth guard + init
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (!user) {
+                alert('Please log in as admin.');
+                window.location.href = 'signin.html';
+                return;
+            }
+
+            try {
+                authToken = await user.getIdToken();
+
+                // Check if user is admin by trying stats endpoint
+                const testRes = await fetch('/api/orders/stats', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+
+                if (testRes.status === 403) {
+                    alert('Access denied. Admin credentials required.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                // User is admin — load dashboard
+                await loadDashboard();
+            } catch (err) {
+                console.error('Auth error:', err);
+                alert('Access denied. Admin credentials required.');
+                window.location.href = 'index.html';
+            }
+        });
     </script>
 </body>
 

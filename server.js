@@ -1,0 +1,430 @@
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const path = require('path');
+const admin = require('firebase-admin');
+
+// ─── Firebase Admin Init ────────────────────────────────────────────────────
+const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT || './firebase-service-account.json';
+try {
+    const serviceAccount = require(path.resolve(serviceAccountPath));
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+    });
+    console.log('✅ Firebase Admin SDK initialized');
+} catch (err) {
+    console.warn('⚠️  Firebase service account not found at', serviceAccountPath);
+    console.warn('   Token verification will be disabled. To enable, download your service account key from:');
+    console.warn('   Firebase Console → Project Settings → Service Accounts → Generate New Private Key');
+    console.warn('   Place the JSON file at the path specified in .env (FIREBASE_SERVICE_ACCOUNT)');
+
+    // Initialize without credentials so the app still runs
+    if (!admin.apps.length) {
+        admin.initializeApp({ projectId: 'savorly-d2e63' });
+    }
+}
+
+// ─── Import Middleware & Models ─────────────────────────────────────────────
+const { verifyToken, requireRole, loadCredentials, saveCredentials } = require('./middleware/auth');
+const Order = require('./models/Order');
+
+// ─── Express Setup ──────────────────────────────────────────────────────────
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
+
+// Serve static files from project root
+app.use(express.static(path.join(__dirname)));
+
+// ─── MongoDB Connection ─────────────────────────────────────────────────────
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/savourly';
+
+mongoose.connect(MONGODB_URI)
+    .then(() => console.log('✅ Connected to MongoDB:', MONGODB_URI))
+    .catch(err => {
+        console.error('❌ MongoDB connection error:', err.message);
+        console.warn('   Make sure MongoDB is running. Install: https://www.mongodb.com/docs/manual/installation/');
+    });
+
+// ─── Clean URL Routes (serve .html files without extension) ─────────────────
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/signin', (req, res) => res.sendFile(path.join(__dirname, 'signin.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+app.get('/delivery', (req, res) => res.sendFile(path.join(__dirname, 'delivery-partner.html')));
+app.get('/orders', (req, res) => res.sendFile(path.join(__dirname, 'orders.html')));
+app.get('/cart', (req, res) => res.sendFile(path.join(__dirname, 'cart.html')));
+
+// ─── API Routes ─────────────────────────────────────────────────────────────
+// IMPORTANT: Specific routes (/my, /stats) MUST come before generic routes (/api/orders)
+
+/**
+ * POST /api/orders
+ * Create a new order (requires authenticated user)
+ */
+app.post('/api/orders', verifyToken, async (req, res) => {
+    try {
+        const { customerDetails, items, totalPrice, paymentMethod } = req.body;
+
+        if (!customerDetails || !items || !totalPrice) {
+            return res.status(400).json({ error: 'Missing required fields: customerDetails, items, totalPrice' });
+        }
+
+        const order = new Order({
+            customerDetails: {
+                name: customerDetails.name,
+                phone: customerDetails.phone,
+                address: customerDetails.address,
+                email: req.user.email || customerDetails.email
+            },
+            items,
+            totalPrice,
+            paymentMethod: paymentMethod || 'cod',
+            firebaseUid: req.user.uid
+        });
+
+        await order.save();
+        console.log('📦 New order created:', order.orderId);
+
+        res.status(201).json({
+            message: 'Order placed successfully!',
+            order: {
+                orderId: order.orderId,
+                status: order.status,
+                totalPrice: order.totalPrice,
+                timestamp: order.timestamp
+            }
+        });
+    } catch (err) {
+        console.error('Order creation error:', err);
+        res.status(500).json({ error: 'Failed to create order' });
+    }
+});
+
+/**
+ * GET /api/orders/my
+ * List orders for the authenticated customer
+ */
+app.get('/api/orders/my', verifyToken, async (req, res) => {
+    try {
+        const orders = await Order.find({ firebaseUid: req.user.uid })
+            .sort({ timestamp: -1 });
+
+        res.json({ orders });
+    } catch (err) {
+        console.error('Fetch my orders error:', err);
+        res.status(500).json({ error: 'Failed to fetch your orders' });
+    }
+});
+
+
+
+/**
+ * GET /api/orders/stats
+ * Get comprehensive order statistics (admin only)
+ */
+app.get('/api/orders/stats', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        const total = await Order.countDocuments();
+        const pending = await Order.countDocuments({ status: 'Pending' });
+        const preparing = await Order.countDocuments({ status: 'Preparing' });
+        const outForDelivery = await Order.countDocuments({ status: 'Out for Delivery' });
+        const delivered = await Order.countDocuments({ status: 'Delivered' });
+        const cancelled = await Order.countDocuments({ status: 'Cancelled' });
+
+        // Revenue (exclude cancelled)
+        const revenueResult = await Order.aggregate([
+            { $match: { status: { $ne: 'Cancelled' } } },
+            { $group: { _id: null, total: { $sum: '$totalPrice' } } }
+        ]);
+        const revenue = revenueResult.length > 0 ? revenueResult[0].total : 0;
+
+        // Average delivery time (only delivered orders with deliveredAt)
+        const avgTimeResult = await Order.aggregate([
+            { $match: { status: 'Delivered', deliveredAt: { $ne: null } } },
+            {
+                $project: {
+                    deliveryTimeMs: { $subtract: ['$deliveredAt', '$timestamp'] }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    avgMs: { $avg: '$deliveryTimeMs' }
+                }
+            }
+        ]);
+        const avgDeliveryMinutes = avgTimeResult.length > 0
+            ? Math.round(avgTimeResult[0].avgMs / 60000)
+            : 0;
+
+        // Unique customers
+        const uniqueCustomers = await Order.distinct('firebaseUid');
+        const totalCustomers = uniqueCustomers.length;
+
+        // Today's stats
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+
+        const todayOrders = await Order.countDocuments({ timestamp: { $gte: todayStart } });
+        const todayRevResult = await Order.aggregate([
+            { $match: { timestamp: { $gte: todayStart }, status: { $ne: 'Cancelled' } } },
+            { $group: { _id: null, total: { $sum: '$totalPrice' } } }
+        ]);
+        const todayRevenue = todayRevResult.length > 0 ? todayRevResult[0].total : 0;
+
+        const todayDelivered = await Order.countDocuments({
+            status: 'Delivered',
+            deliveredAt: { $gte: todayStart }
+        });
+
+        const todayCustomers = await Order.distinct('firebaseUid', { timestamp: { $gte: todayStart } });
+
+        res.json({
+            total, pending, preparing, outForDelivery, delivered, cancelled,
+            revenue, avgDeliveryMinutes, totalCustomers,
+            todayOrders, todayRevenue, todayDelivered,
+            newCustomersToday: todayCustomers.length
+        });
+    } catch (err) {
+        console.error('Stats error:', err);
+        res.status(500).json({ error: 'Failed to fetch stats' });
+    }
+});
+
+/**
+ * GET /api/orders
+ * List all orders (admin / delivery partner only)
+ */
+app.get('/api/orders', verifyToken, requireRole('admin', 'delivery'), async (req, res) => {
+    try {
+        const { status, limit = 50, skip = 0 } = req.query;
+        const filter = {};
+        if (status) filter.status = status;
+
+        const orders = await Order.find(filter)
+            .sort({ timestamp: -1 })
+            .limit(parseInt(limit))
+            .skip(parseInt(skip));
+
+        const total = await Order.countDocuments(filter);
+
+        res.json({ orders, total });
+    } catch (err) {
+        console.error('Fetch orders error:', err);
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+});
+
+/**
+ * GET /api/orders/:id
+ * View a single order — enforces row-level security:
+ *   • Admins / delivery partners can view any order
+ *   • Regular users can only view their OWN orders (matched by firebaseUid)
+ *   Returns 403 if a user tries to access someone else's order
+ */
+app.get('/api/orders/:id', verifyToken, async (req, res) => {
+    try {
+        const order = await Order.findOne({ orderId: req.params.id });
+
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        // Check if user is admin or delivery partner
+        const creds = loadCredentials();
+        const email = (req.user.email || '').toLowerCase();
+        const isPrivileged = creds.admins.map(e => e.toLowerCase()).includes(email)
+            || creds.delivery.map(e => e.toLowerCase()).includes(email);
+
+        // If not privileged, enforce ownership — must match firebaseUid
+        if (!isPrivileged && order.firebaseUid !== req.user.uid) {
+            return res.status(403).json({ error: 'Forbidden — this order does not belong to you' });
+        }
+
+        res.json({ order });
+    } catch (err) {
+        console.error('Fetch order detail error:', err);
+        res.status(500).json({ error: 'Failed to fetch order' });
+    }
+});
+
+/**
+ * PATCH /api/orders/:id/status
+ * Update order status (admin / delivery partner only)
+ * Automatically sets deliveredAt when status = "Delivered"
+ */
+app.patch('/api/orders/:id/status', verifyToken, requireRole('admin', 'delivery'), async (req, res) => {
+    try {
+        const { status } = req.body;
+        const validStatuses = ['Pending', 'Preparing', 'Out for Delivery', 'Delivered', 'Cancelled'];
+
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+        }
+
+        const updateData = { status };
+        if (status === 'Delivered') {
+            updateData.deliveredAt = new Date();
+        }
+
+        const order = await Order.findOneAndUpdate(
+            { orderId: req.params.id },
+            updateData,
+            { new: true }
+        );
+
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        console.log(`📦 Order ${order.orderId} status updated to: ${status}`);
+        res.json({ message: 'Status updated', order });
+    } catch (err) {
+        console.error('Update status error:', err);
+        res.status(500).json({ error: 'Failed to update order status' });
+    }
+});
+
+// ─── Admin Endpoints ────────────────────────────────────────────────────────
+
+/**
+ * GET /api/admin/customers
+ * Get unique customers from orders (admin only)
+ */
+app.get('/api/admin/customers', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        const customers = await Order.aggregate([
+            {
+                $group: {
+                    _id: '$firebaseUid',
+                    name: { $last: '$customerDetails.name' },
+                    email: { $last: '$customerDetails.email' },
+                    phone: { $last: '$customerDetails.phone' },
+                    orderCount: { $sum: 1 },
+                    totalSpent: { $sum: '$totalPrice' },
+                    lastOrder: { $max: '$timestamp' },
+                    firstOrder: { $min: '$timestamp' }
+                }
+            },
+            { $sort: { lastOrder: -1 } }
+        ]);
+
+        res.json({ customers, total: customers.length });
+    } catch (err) {
+        console.error('Customers error:', err);
+        res.status(500).json({ error: 'Failed to fetch customers' });
+    }
+});
+
+/**
+ * GET /api/admin/credentials
+ * Get admin and delivery partner email lists (admin only)
+ */
+app.get('/api/admin/credentials', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        const creds = loadCredentials();
+        res.json(creds);
+    } catch (err) {
+        console.error('Credentials error:', err);
+        res.status(500).json({ error: 'Failed to load credentials' });
+    }
+});
+
+/**
+ * POST /api/admin/credentials
+ * Add an admin or delivery email (admin only)
+ * Body: { type: "admin"|"delivery", email: "..." }
+ */
+app.post('/api/admin/credentials', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        const { type, email } = req.body;
+        if (!type || !email || !['admin', 'delivery'].includes(type)) {
+            return res.status(400).json({ error: 'type must be "admin" or "delivery", and email is required' });
+        }
+
+        const creds = loadCredentials();
+        const list = type === 'admin' ? creds.admins : creds.delivery;
+        const emailLower = email.toLowerCase().trim();
+
+        if (list.map(e => e.toLowerCase()).includes(emailLower)) {
+            return res.status(409).json({ error: 'Email already exists' });
+        }
+
+        list.push(emailLower);
+        saveCredentials(creds);
+
+        console.log(`👤 ${type} email added: ${emailLower}`);
+        res.json({ message: `${type} email added`, credentials: creds });
+    } catch (err) {
+        console.error('Add credential error:', err);
+        res.status(500).json({ error: 'Failed to add credential' });
+    }
+});
+
+/**
+ * DELETE /api/admin/credentials
+ * Remove an admin or delivery email (admin only)
+ * Body: { type: "admin"|"delivery", email: "..." }
+ */
+app.delete('/api/admin/credentials', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        const { type, email } = req.body;
+        if (!type || !email || !['admin', 'delivery'].includes(type)) {
+            return res.status(400).json({ error: 'type must be "admin" or "delivery", and email is required' });
+        }
+
+        const creds = loadCredentials();
+        const emailLower = email.toLowerCase().trim();
+
+        // Prevent removing the primary admin
+        if (type === 'admin' && emailLower === 'admin@savourly.in') {
+            return res.status(403).json({ error: 'Cannot remove the primary admin' });
+        }
+
+        if (type === 'admin') {
+            creds.admins = creds.admins.filter(e => e.toLowerCase() !== emailLower);
+        } else {
+            creds.delivery = creds.delivery.filter(e => e.toLowerCase() !== emailLower);
+        }
+
+        saveCredentials(creds);
+        console.log(`👤 ${type} email removed: ${emailLower}`);
+        res.json({ message: `${type} email removed`, credentials: creds });
+    } catch (err) {
+        console.error('Remove credential error:', err);
+        res.status(500).json({ error: 'Failed to remove credential' });
+    }
+});
+
+/**
+ * DELETE /api/admin/orders
+ * Clear all orders from MongoDB (admin only — danger zone)
+ */
+app.delete('/api/admin/orders', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        const result = await Order.deleteMany({});
+        console.log(`🗑️ Cleared ${result.deletedCount} orders`);
+        res.json({ message: `Deleted ${result.deletedCount} orders` });
+    } catch (err) {
+        console.error('Clear orders error:', err);
+        res.status(500).json({ error: 'Failed to clear orders' });
+    }
+});
+
+// ─── Catch-All: Serve index.html only for non-file routes ──────────────────
+// This prevents the catch-all from intercepting .html, .css, .js etc.
+app.get('*', (req, res) => {
+    // If the request looks like a file (has an extension), return 404
+    if (path.extname(req.path)) {
+        return res.status(404).send('File not found');
+    }
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// ─── Start Server ───────────────────────────────────────────────────────────
+app.listen(PORT, () => {
+    console.log(`🚀 Savourly server running at http://localhost:${PORT}`);
+});

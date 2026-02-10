@@ -438,60 +438,146 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+
     <script>
-        // Default password for admin/delivery partner
-        const DEFAULT_PASSWORD = 'savorly123';
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAbOyzOi3xqyXNLWrmkL7pqMrxk_opjW1I",
+            authDomain: "savorly-d2e63.firebaseapp.com",
+            projectId: "savorly-d2e63",
+            storageBucket: "savorly-d2e63.firebasestorage.app",
+            messagingSenderId: "820941077673",
+            appId: "1:820941077673:web:feffe61f09d5970c477db8",
+            measurementId: "G-E3YQ1VSL75"
+        };
 
-        function handleLogin(e) {
-            e.preventDefault();
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
 
-            const email = document.getElementById('email').value.trim().toLowerCase();
-            const password = document.getElementById('password').value;
+        // Gatekeeper emails
+        const ADMIN_EMAILS = ['admin@savourly.in'];
+        const DELIVERY_EMAILS = ['delivery@savourly.in'];
 
-            // Get admin and delivery partner emails from localStorage (only those set in Admin Settings)
-            const adminEmails = JSON.parse(localStorage.getItem('savourlyAdmins')) || [];
-            const deliveryEmails = JSON.parse(localStorage.getItem('savourlyDelivery')) || [];
+        function isAdminEmail(email) {
+            return ADMIN_EMAILS.includes(email.toLowerCase());
+        }
 
-            // Check if admin
-            const isAdmin = adminEmails.some(e => e.toLowerCase() === email);
-            // Check if delivery partner
-            const isDeliveryPartner = deliveryEmails.some(e => e.toLowerCase() === email);
+        function isDeliveryEmail(email) {
+            return DELIVERY_EMAILS.includes(email.toLowerCase());
+        }
 
-            // Validate password for admin/delivery roles
-            if (isAdmin || isDeliveryPartner) {
-                if (password !== DEFAULT_PASSWORD) {
-                    alert('Invalid password. Default password is: savorly123');
-                    return;
-                }
-            }
+        function getRole(email) {
+            if (isAdminEmail(email)) return 'admin';
+            if (isDeliveryEmail(email)) return 'delivery';
+            return 'customer';
+        }
 
-            // Hide form, show success
+        function showSuccess(message) {
             document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('successMsg').classList.add('show');
+            const successMsg = document.getElementById('successMsg');
+            successMsg.classList.add('show');
+            if (message) {
+                successMsg.querySelector('p').textContent = message;
+            }
+        }
 
-            // Store logged in user
+        async function storeUserAndRedirect(user) {
+            const email = user.email.toLowerCase();
+            const role = getRole(email);
+
+            // Get and store the ID token for API calls
+            const token = await user.getIdToken();
+            localStorage.setItem('savourlyAuthToken', token);
             localStorage.setItem('savourlyUser', JSON.stringify({
                 email,
-                role: isAdmin ? 'admin' : isDeliveryPartner ? 'delivery' : 'customer',
+                role,
+                displayName: user.displayName || email.split('@')[0],
+                photoURL: user.photoURL || null,
+                uid: user.uid,
                 loggedInAt: new Date().toISOString()
             }));
 
             // Role-based redirect
-            setTimeout(() => {
-                if (isAdmin) {
-                    document.querySelector('#successMsg p').textContent = 'Redirecting to Admin Dashboard...';
-                    window.location.href = 'admin.html';
-                } else if (isDeliveryPartner) {
-                    document.querySelector('#successMsg p').textContent = 'Redirecting to Delivery Partner Dashboard...';
-                    window.location.href = 'delivery-partner.html';
-                } else {
-                    window.location.href = 'index.html';
-                }
-            }, 1500);
+            if (role === 'admin') {
+                showSuccess('Redirecting to Admin Dashboard...');
+                setTimeout(() => window.location.href = 'admin.html', 1200);
+            } else if (role === 'delivery') {
+                showSuccess('Redirecting to Delivery Partner Dashboard...');
+                setTimeout(() => window.location.href = 'delivery-partner.html', 1200);
+            } else {
+                showSuccess('Redirecting...');
+                setTimeout(() => window.location.href = 'index.html', 1200);
+            }
         }
 
-        function socialLogin(provider) {
-            alert(`${provider} login coming soon!`);
+        // Sign-Up handler
+        async function handleLogin(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const submitBtn = document.querySelector('.login-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating Account...';
+
+            try {
+                // Create new account
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Gatekeeper logic
+                if (isAdminEmail(email) || isDeliveryEmail(email)) {
+                    // Admin & Delivery: bypass email verification
+                    await storeUserAndRedirect(user);
+                } else {
+                    // Customers: check email verification
+                    if (!user.emailVerified) {
+                        await user.sendEmailVerification();
+                        alert('A verification email has been sent to ' + email + '. Please verify your email before signing in.');
+                        await auth.signOut();
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Sign In';
+                        return;
+                    }
+                    await storeUserAndRedirect(user);
+                }
+            } catch (error) {
+                console.error('Sign-up error:', error);
+                if (error.code === 'auth/email-already-in-use') {
+                    alert('This email is already registered. Please sign in instead.');
+                    window.location.href = 'signin.html';
+                } else if (error.code === 'auth/weak-password') {
+                    alert('Password should be at least 6 characters.');
+                } else if (error.code === 'auth/invalid-email') {
+                    alert('Please enter a valid email address.');
+                } else {
+                    alert(error.message);
+                }
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign In';
+            }
+        }
+
+        // Google Auth
+        async function socialLogin(provider) {
+            if (provider === 'Google') {
+                try {
+                    const googleProvider = new firebase.auth.GoogleAuthProvider();
+                    const result = await auth.signInWithPopup(googleProvider);
+                    // Google accounts are pre-verified, redirect directly
+                    await storeUserAndRedirect(result.user);
+                } catch (error) {
+                    console.error('Google sign-in error:', error);
+                    if (error.code !== 'auth/popup-closed-by-user') {
+                        alert('Google sign-in failed: ' + error.message);
+                    }
+                }
+            } else {
+                alert(provider + ' sign-in coming soon!');
+            }
         }
     </script>
 

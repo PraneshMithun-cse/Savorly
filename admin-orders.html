@@ -321,43 +321,152 @@
         <div class="orders-grid" id="ordersGrid"></div>
     </main>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script>
-        const orders = [
-            { id: '#ORD-2847', name: 'Priya Sharma', phone: '+91 98765 43210', plan: 'Weekly Meal Plan', meal: 'Meal 1 - Breakfast + Lunch', amount: '₹2,499', status: 'preparing', time: '2 min ago' },
-            { id: '#ORD-2846', name: 'Rahul Verma', phone: '+91 87654 32109', plan: 'Monthly Transform', meal: 'Meal 3 - Full Day', amount: '₹8,999', status: 'pending', time: '5 min ago' },
-            { id: '#ORD-2845', name: 'Anita Patel', phone: '+91 76543 21098', plan: 'Weekly Meal Plan', meal: 'Meal 2 - Lunch + Dinner', amount: '₹2,499', status: 'delivered', time: '12 min ago' },
-            { id: '#ORD-2844', name: 'Karthik R', phone: '+91 99887 76655', plan: 'Single Day Trial', meal: 'Lunch Only', amount: '₹449', status: 'preparing', time: '8 min ago' },
-            { id: '#ORD-2843', name: 'Deepa M', phone: '+91 88776 65544', plan: 'Weekly Meal Plan', meal: 'Meal 1 - Breakfast + Lunch', amount: '₹2,499', status: 'delivered', time: '25 min ago' },
-            { id: '#ORD-2842', name: 'Arjun K', phone: '+91 77665 54433', plan: 'Monthly Transform', meal: 'Meal 2 - Lunch + Dinner', amount: '₹8,999', status: 'cancelled', time: '30 min ago' },
-            { id: '#ORD-2841', name: 'Sneha R', phone: '+91 66554 43322', plan: 'Weekly Meal Plan', meal: 'Meal 3 - Full Day', amount: '₹3,499', status: 'delivered', time: '45 min ago' },
-            { id: '#ORD-2840', name: 'Vikram S', phone: '+91 55443 32211', plan: 'Single Day Trial', meal: 'Dinner Only', amount: '₹399', status: 'pending', time: '1 hr ago' },
-        ];
+        const firebaseConfig = {
+            apiKey: "AIzaSyAbOyzOi3xqyXNLWrmkL7pqMrxk_opjW1I",
+            authDomain: "savorly-d2e63.firebaseapp.com",
+            projectId: "savorly-d2e63",
+            storageBucket: "savorly-d2e63.firebasestorage.app",
+            messagingSenderId: "820941077673",
+            appId: "1:820941077673:web:feffe61f09d5970c477db8",
+            measurementId: "G-E3YQ1VSL75"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-        function renderOrders(filter = 'all') {
+        let authToken = null;
+
+        function timeAgo(dateStr) {
+            const diff = Date.now() - new Date(dateStr).getTime();
+            const mins = Math.floor(diff / 60000);
+            if (mins < 1) return 'Just now';
+            if (mins < 60) return mins + ' min ago';
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return hrs + 'h ago';
+            return Math.floor(hrs / 24) + 'd ago';
+        }
+
+        function statusClass(s) {
+            return s.toLowerCase().replace(/\s+/g, '-');
+        }
+
+        async function fetchOrders(statusFilter) {
+            let url = '/api/orders?limit=50';
+            if (statusFilter && statusFilter !== 'all') {
+                // Capitalize first letter to match enum
+                const mapped = {
+                    'pending': 'Pending',
+                    'preparing': 'Preparing',
+                    'out-for-delivery': 'Out for Delivery',
+                    'delivered': 'Delivered',
+                    'cancelled': 'Cancelled'
+                };
+                url += '&status=' + encodeURIComponent(mapped[statusFilter] || statusFilter);
+            }
+
+            const res = await fetch(url, {
+                headers: { 'Authorization': 'Bearer ' + authToken }
+            });
+            if (!res.ok) throw new Error('Failed to fetch orders');
+            return res.json();
+        }
+
+        async function changeStatus(orderId, newStatus) {
+            try {
+                const res = await fetch('/api/orders/' + orderId + '/status', {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': 'Bearer ' + authToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (!res.ok) throw new Error('Failed to update');
+                // Reload current filter
+                const activeBtn = document.querySelector('.filter-btn.active');
+                const filter = activeBtn ? activeBtn.dataset.filter : 'all';
+                await loadOrders(filter);
+            } catch (err) {
+                alert('Error updating status: ' + err.message);
+            }
+        }
+
+        function renderOrders(orders) {
             const grid = document.getElementById('ordersGrid');
-            const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter);
-            grid.innerHTML = filtered.map(o => `
+
+            if (!orders || orders.length === 0) {
+                grid.innerHTML = '<div style="text-align:center; padding:60px; color:var(--text-muted); font-size:16px;">No orders found</div>';
+                return;
+            }
+
+            const allStatuses = ['Pending', 'Preparing', 'Out for Delivery', 'Delivered', 'Cancelled'];
+
+            grid.innerHTML = orders.map(o => `
                 <div class="order-card">
-                    <span class="order-id">${o.id}</span>
-                    <div class="order-customer"><strong>${o.name}</strong><span>${o.phone}</span></div>
-                    <div class="order-plan"><strong>${o.plan}</strong><span>${o.meal}</span></div>
-                    <span class="order-amount">${o.amount}</span>
-                    <span class="status-badge ${o.status}">${o.status}</span>
-                    <span class="order-time">${o.time}</span>
+                    <span class="order-id">${o.orderId}</span>
+                    <div class="order-customer">
+                        <strong>${o.customerDetails.name}</strong>
+                        <span>${o.customerDetails.phone}</span>
+                    </div>
+                    <div class="order-plan">
+                        <strong>${o.items.map(i => i.planName).join(', ')}</strong>
+                        <span>Qty: ${o.items.reduce((s, i) => s + i.quantity, 0)} · ₹${o.totalPrice.toLocaleString('en-IN')}</span>
+                    </div>
+                    <span class="order-amount">₹${o.totalPrice.toLocaleString('en-IN')}</span>
+                    <div>
+                        <select class="status-badge ${statusClass(o.status)}" onchange="changeStatus('${o.orderId}', this.value)" style="
+                            background: var(--card-hover); color: var(--text); border: 1px solid var(--border);
+                            border-radius: 50px; padding: 6px 14px; font-size: 11px; font-weight: 600;
+                            cursor: pointer; text-transform: uppercase; appearance: auto; font-family: inherit;
+                        ">
+                            ${allStatuses.map(s => `<option value="${s}" ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}
+                        </select>
+                    </div>
+                    <span class="order-time">${timeAgo(o.timestamp)}</span>
                 </div>
             `).join('');
         }
 
+        async function loadOrders(filter = 'all') {
+            try {
+                const data = await fetchOrders(filter);
+                renderOrders(data.orders);
+            } catch (err) {
+                console.error('Load orders error:', err);
+            }
+        }
+
+        // Filter buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                const filter = btn.textContent.toLowerCase().replace(' orders', '').replace('all', 'all');
-                renderOrders(filter === 'all' ? 'all' : filter);
+                const text = btn.textContent.toLowerCase().trim();
+                let filter = 'all';
+                if (text === 'pending') filter = 'pending';
+                else if (text === 'preparing') filter = 'preparing';
+                else if (text === 'delivered') filter = 'delivered';
+                else if (text === 'cancelled') filter = 'cancelled';
+                btn.dataset.filter = filter;
+                loadOrders(filter);
             });
         });
 
-        renderOrders();
+        // Auth guard + init
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (!user) { window.location.href = 'signin.html'; return; }
+            try {
+                authToken = await user.getIdToken();
+                const test = await fetch('/api/orders/stats', { headers: { 'Authorization': 'Bearer ' + authToken } });
+                if (test.status === 403) { alert('Admin access required.'); window.location.href = 'index.html'; return; }
+                await loadOrders();
+            } catch (err) {
+                console.error('Auth error:', err);
+                window.location.href = 'index.html';
+            }
+        });
     </script>
 </body>
 
