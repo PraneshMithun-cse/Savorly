@@ -109,8 +109,7 @@ app.use(express.static(path.join(__dirname)));
 
 // ─── MongoDB Connection ─────────────────────────────────────────────────────
 // ─── MongoDB Connection (Serverless Optimized) ──────────────────────────────
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/savourly';
-
+// ─── MongoDB Connection (Serverless Optimized) ──────────────────────────────
 let isConnected = false;
 
 const connectDB = async () => {
@@ -118,16 +117,18 @@ const connectDB = async () => {
         return;
     }
 
-    // skip localhost connection on Vercel to prevent timeout 500s
-    if (process.env.VERCEL === '1' && MONGODB_URI.includes('localhost')) {
-        console.warn('⚠️  Vercel environment detected but MONGODB_URI is localhost. Skipping connection.');
+    const dbURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/savourly';
+
+    // If on Vercel and no explicit MONGODB_URI, skip connection to avoid timeout
+    if (process.env.VERCEL && !process.env.MONGODB_URI) {
+        console.warn('⚠️  Vercel environment detected but MONGODB_URI not set. Skipping connection.');
         return;
     }
 
     try {
-        const conn = await mongoose.connect(MONGODB_URI, {
-            // Options to ensure robust connection (deprecated options removed)
-            serverSelectionTimeoutMS: 5000 // Fail fast if cannot connect
+        const conn = await mongoose.connect(dbURI, {
+            // Options to ensure robust connection
+            serverSelectionTimeoutMS: 5000 // Fail fast
         });
         isConnected = true;
         console.log('✅ MongoDB Connected:', conn.connection.host);
