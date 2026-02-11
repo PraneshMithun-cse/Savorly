@@ -35,7 +35,6 @@ try {
 
 // ─── Import Middleware & Models ─────────────────────────────────────────────
 const { verifyToken, requireRole, loadCredentials, saveCredentials } = require('./middleware/auth');
-const { verifyToken, requireRole, loadCredentials, saveCredentials } = require('./middleware/auth');
 const Order = require('./models/Order');
 const Consultation = require('./models/Consultation');
 const Plan = require('./models/Plan');
@@ -751,6 +750,22 @@ app.delete('/api/admin/orders', verifyToken, requireRole('admin'), async (req, r
         console.error('Clear orders error:', err);
         res.status(500).json({ error: 'Failed to clear orders' });
     }
+});
+
+/**
+ * GET /api/debug
+ * Simple endpoint to check if server is up and env vars are loaded
+ */
+app.get('/api/debug', (req, res) => {
+    res.json({
+        status: 'online',
+        timestamp: new Date().toISOString(),
+        env: {
+            vercel: process.env.VERCEL === '1',
+            hasMongoURI: !!process.env.MONGODB_URI,
+            hasFirebase: !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON
+        }
+    });
 });
 
 // ─── Catch-All: Serve index.html only for non-file routes ──────────────────
