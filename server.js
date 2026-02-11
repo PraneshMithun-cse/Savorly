@@ -140,6 +140,14 @@ const connectDB = async () => {
 
 // Middleware to ensure DB is connected for every request
 app.use(async (req, res, next) => {
+    // Add No-Cache headers for API routes
+    if (req.path.startsWith('/api')) {
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+        res.set('Surrogate-Control', 'no-store');
+    }
+
     // Skip DB connection for static files to save time
     if (req.path.startsWith('/assets') || req.path.match(/\.(css|js|png|jpg|ico)$/)) {
         return next();

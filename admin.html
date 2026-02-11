@@ -1009,14 +1009,24 @@
             return Math.floor(hrs / 24) + 'd ago';
         }
 
-        // Fetch data with auth
+        // Fetch data with auth and cache-busting
         async function apiFetch(url) {
-            const res = await fetch(url, {
-                headers: { 'Authorization': 'Bearer ' + authToken }
+            // Append timestamp to prevent caching
+            const separator = url.includes('?') ? '&' : '?';
+            const freshUrl = `${url}${separator}_t=${Date.now()}`;
+
+            const res = await fetch(freshUrl, {
+                headers: {
+                    'Authorization': 'Bearer ' + authToken,
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
             });
             if (!res.ok) throw new Error('API error: ' + res.status);
             return res.json();
         }
+
+        // ... (renderStats, renderOrders, renderFeedback functions omitted for brevity) ...
 
         // Render dashboard stats
         function renderStats(stats) {
@@ -1121,7 +1131,8 @@
             }
 
             try {
-                authToken = await user.getIdToken();
+                // Force fresh token to ensure custom claims are up to date
+                authToken = await user.getIdToken(true);
 
                 // Check if user is admin by trying stats endpoint
                 const testRes = await fetch('/api/orders/stats', {
