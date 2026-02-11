@@ -730,7 +730,7 @@
                     <path d="M16 10a4 4 0 01-8 0" />
                 </svg>
                 <span>Orders</span>
-                <span class="nav-badge">12</span>
+                <span class="nav-badge" style="display:none">0</span>
             </a>
             <a href="admin-consultations.html" class="nav-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -777,136 +777,12 @@
                     </svg>
                     Refresh
                 </button>
-                <div class="live-dot"></div>
+                <h2>Recent Feedback</h2>
+                <span class="card-badge">3 New</span>
             </div>
-        </header>
-
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon green">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <line x1="12" y1="1" x2="12" y2="23" />
-                            <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
-                        </svg>
-                    </div>
-                    <div class="stat-trend up">↑ 12.5%</div>
-                </div>
-                <div class="stat-value" id="totalRevenue">₹0</div>
-                <div class="stat-label">Today's Revenue</div>
+            <div class="card-body" id="feedbackList">
+                <!-- Feedback populated by JS -->
             </div>
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon blue">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                            <line x1="3" y1="6" x2="21" y2="6" />
-                            <path d="M16 10a4 4 0 01-8 0" />
-                        </svg>
-                    </div>
-                    <div class="stat-trend up">↑ 8.2%</div>
-                </div>
-                <div class="stat-value" id="totalOrders">0</div>
-                <div class="stat-label">Today's Orders</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon orange">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <rect x="1" y="3" width="15" height="13" />
-                            <polygon points="16,8 20,8 23,11 23,16 16,16 16,8" />
-                            <circle cx="5.5" cy="18.5" r="2.5" />
-                            <circle cx="18.5" cy="18.5" r="2.5" />
-                        </svg>
-                    </div>
-                    <div class="stat-trend down">↓ 2.1%</div>
-                </div>
-                <div class="stat-value" id="avgDeliveryTime">-- min</div>
-                <div class="stat-label">Avg Delivery Time</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon teal">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                            <path d="M23 21v-2a4 4 0 00-3-3.87" />
-                            <path d="M16 3.13a4 4 0 010 7.75" />
-                        </svg>
-                    </div>
-                    <div class="stat-trend up">↑ 15.3%</div>
-                </div>
-                <div class="stat-value" id="newCustomers">0</div>
-                <div class="stat-label">Total Customers</div>
-            </div>
-        </div>
-
-        <!-- Orders & Delivery Stats -->
-        <div class="grid-2">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Recent Orders</h2>
-                    <span class="card-badge">Live</span>
-                </div>
-                <div class="card-body">
-                    <div class="orders-table" id="ordersTable">
-                        <!-- Orders populated by JS -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h2>Delivery Stats</h2>
-                </div>
-                <div class="card-body">
-                    <div class="delivery-stat">
-                        <div class="delivery-info">
-                            <div class="delivery-icon" style="background:rgba(34,197,94,0.15)">🚴</div>
-                            <span class="delivery-label">Active Deliveries</span>
-                        </div>
-                        <span class="delivery-value" id="activeDeliveries">18</span>
-                    </div>
-                    <div class="delivery-stat">
-                        <div class="delivery-info">
-                            <div class="delivery-icon" style="background:rgba(59,130,246,0.15)">✅</div>
-                            <span class="delivery-label">Completed Today</span>
-                        </div>
-                        <span class="delivery-value" id="completedDeliveries">134</span>
-                    </div>
-                    <div class="delivery-stat">
-                        <div class="delivery-info">
-                            <div class="delivery-icon" style="background:rgba(245,158,11,0.15)">⏳</div>
-                            <span class="delivery-label">Pending Pickup</span>
-                        </div>
-                        <span class="delivery-value" id="pendingPickup">4</span>
-                    </div>
-                    <div class="delivery-stat">
-                        <div class="delivery-info">
-                            <div class="delivery-icon" style="background:rgba(239,68,68,0.15)">❌</div>
-                            <span class="delivery-label">Cancelled</span>
-                        </div>
-                        <span class="delivery-value" id="cancelledOrders">2</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Feedback & Help -->
-        <div class="grid-2">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Recent Feedback</h2>
-                    <span class="card-badge">3 New</span>
-                </div>
-                <div class="card-body" id="feedbackList">
-                    <!-- Feedback populated by JS -->
-                </div>
             </div>
 
             <div class="card">
@@ -970,7 +846,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
