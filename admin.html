@@ -1158,11 +1158,37 @@
                     apiFetch('/api/orders?limit=8')
                 ]);
 
+                // Save to cache
+                localStorage.setItem('admin_dashboard_cache', JSON.stringify({
+                    stats,
+                    orders: ordersData.orders,
+                    timestamp: Date.now()
+                }));
+
                 renderStats(stats);
                 renderOrders(ordersData.orders);
                 renderFeedback();
             } catch (err) {
                 console.error('Dashboard load error:', err);
+            }
+        }
+
+        // Load from cache for instant display
+        function loadFromCache() {
+            const cached = localStorage.getItem('admin_dashboard_cache');
+            if (cached) {
+                try {
+                    const data = JSON.parse(cached);
+                    // Only use cache if less than 24h old
+                    if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
+                        renderStats(data.stats);
+                        renderOrders(data.orders);
+                        renderFeedback();
+                        console.log('Loaded from cache');
+                    }
+                } catch (e) {
+                    console.error('Cache parse error', e);
+                }
             }
         }
 
@@ -1198,6 +1224,7 @@
                 }
 
                 // User is admin — load dashboard
+                loadFromCache(); // Instant render
                 await loadDashboard();
                 updateBadgeCount();
 
