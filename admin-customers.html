@@ -305,15 +305,19 @@
                     <line x1="3" y1="6" x2="21" y2="6" />
                     <path d="M16 10a4 4 0 01-8 0" />
                 </svg><span>Orders</span></a>
+            <a href="admin-consultations.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                    <path d="M16 3.13a4 4 0 010 7.75" />
+                </svg><span>Consultations</span></a>
             <a href="admin-customers.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
                     <circle cx="9" cy="7" r="4" />
                 </svg><span>Customers</span></a>
-            <a href="admin-feedback.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2">
-                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-                </svg><span>Feedback</span></a>
+
             <a href="admin-settings.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2">
                     <circle cx="12" cy="12" r="3" />
@@ -390,6 +394,9 @@
                         <div class="order-item">
                             <div class="order-item-info">
                                 <strong>📞 ${c.phone || 'N/A'}</strong>
+                                <div style="font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.4;">
+                                    📍 ${c.address || 'No address'}
+                                </div>
                                 <span>First order: ${c.firstOrder ? new Date(c.firstOrder).toLocaleDateString('en-IN') : 'N/A'}</span>
                             </div>
                             <span class="order-item-status delivered" style="background:rgba(34,197,94,0.15);color:var(--success);">
@@ -419,17 +426,39 @@
 
         document.getElementById('searchInput').addEventListener('input', (e) => renderCustomers(e.target.value));
 
-        // Auth guard + init
-        firebase.auth().onAuthStateChanged(async (user) => {
-            if (!user) { window.location.href = 'signin.html'; return; }
+        <script>
+        // ... (existing firebase config) ...
+
+            async function updateBadgeCount() {
             try {
-                authToken = await user.getIdToken();
-                const test = await fetch('/api/orders/stats', { headers: { 'Authorization': 'Bearer ' + authToken } });
-                if (test.status === 403) { alert('Admin access required.'); window.location.href = 'index.html'; return; }
-                await loadCustomers();
+                if (!authToken) return;
+            const badges = document.querySelectorAll('.nav-badge');
+            if (badges.length === 0) return;
+            const res = await fetch('/api/orders/stats', {headers: {'Authorization': 'Bearer ' + authToken } });
+            if (res.ok) {
+                    const data = await res.json();
+                    badges.forEach(badge => {
+                badge.textContent = data.pending;
+                        badge.style.display = data.pending > 0 ? 'inline-flex' : 'none';
+                    });
+                }
+            } catch (e) {console.error(e); }
+        }
+    </script>
+    <script>
+        // ... (existing auth) ...
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (!user) {window.location.href = 'signin.html'; return; }
+        try {
+            authToken = await user.getIdToken();
+        const test = await fetch('/api/orders/stats', {headers: {'Authorization': 'Bearer ' + authToken } });
+        if (test.status === 403) {alert('Admin access required.'); window.location.href = 'index.html'; return; }
+        await loadCustomers();
+        updateBadgeCount();
+        setInterval(updateBadgeCount, 60000);
             } catch (err) {
-                console.error('Auth error:', err);
-                window.location.href = 'index.html';
+            console.error('Auth error:', err);
+        window.location.href = 'index.html';
             }
         });
     </script>

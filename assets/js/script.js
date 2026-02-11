@@ -534,73 +534,111 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Add to cart buttons on plan cards
-    const planImages = {
-        'Silver Plan': 'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=100&h=100&fit=crop',
-        'Gold Plan': 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=100&h=100&fit=crop',
-        'Platinum Plan': 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=100&h=100&fit=crop'
+    // ============================================
+    // PLANS & DYNAMIC CONTENT
+    // ============================================
+    let availablePlans = [];
+
+    const fetchPlans = async () => {
+        try {
+            const grid = document.getElementById('plansGrid');
+            if (!grid) return;
+
+            const res = await fetch('/api/plans');
+            if (!res.ok) throw new Error('Failed to fetch plans');
+            availablePlans = await res.json();
+            renderPlans(availablePlans);
+        } catch (err) {
+            console.error('Fetch plans error:', err);
+            const grid = document.getElementById('plansGrid');
+            if (grid) grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;">Failed to load plans. Please try again later.</div>';
+        }
     };
 
-    document.querySelectorAll('.add-to-cart').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const plan = btn.dataset.plan;
-            // Remove commas from price before parsing
-            const price = parseInt(btn.dataset.price.replace(/,/g, ''));
-            const image = planImages[plan] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop';
-            addToCart(plan, price, image);
+    const renderPlans = (plans) => {
+        const grid = document.getElementById('plansGrid');
+        if (!grid) return;
 
-            // Button feedback
-            const originalText = btn.textContent;
-            btn.textContent = '✓ Added!';
-            btn.disabled = true;
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }, 1500);
+        grid.innerHTML = plans.map(p => {
+            const isPopular = p.isPopular ? '<div class="plan-ribbon">Most Popular</div>' : '';
+            const featuredClass = p.isPopular ? 'featured gold-plan' : '';
+            const badgeClass = p.badgeColor || 'silver'; // silver, gold, platinum
+
+            // Map simple badge colors to classes if needed, or just use the value
+            // We'll generate a unique ID for the info text: "planInfo-<id>"
+            return `
+                <div class="plan-card ${featuredClass}">
+                    ${isPopular}
+                    <div class="plan-image-wrapper">
+                        <img src="${p.image}" alt="${p.name}" class="plan-image">
+                        <div class="plan-badge ${badgeClass}">${p.name.split(' ')[0]}</div>
+                    </div>
+                    <div class="plan-content">
+                        <h3 class="plan-name">${p.name}</h3>
+                        <p class="plan-description">${p.description}</p>
+                        <div class="plan-price"><span class="price-currency">₹</span><span class="price-value">${p.price.toLocaleString('en-IN')}</span><span class="price-period">/week</span></div>
+                        <ul class="plan-features">
+                            ${p.features.map(f => `
+                                <li class="feature">
+                                    <svg class="feature-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                    </svg>
+                                    <span>${f}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                        <p class="plan-info" id="planInfo-${p._id}">${p.infoContent ? p.infoContent[0] : ''}</p>
+                        <button class="btn ${p.isPopular ? 'btn-primary' : 'btn-outline'} btn-block add-to-cart-dynamic" 
+                            data-id="${p._id}">Add to Cart</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Re-attach event listeners for add to cart
+        document.querySelectorAll('.add-to-cart-dynamic').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const plan = availablePlans.find(p => p._id === id);
+                if (plan) {
+                    addToCart(plan.name, plan.price, plan.image);
+                    const originalText = btn.textContent;
+                    btn.textContent = '✓ Added!';
+                    btn.disabled = true;
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    }, 1500);
+                }
+            });
         });
-    });
 
-    // Initialize cart UI
-    updateCartUI();
+        // Populate subscription dropdown
+        const subSelect = document.querySelector('#subscribeForm select');
+        if (subSelect) {
+            subSelect.innerHTML = '<option value="" disabled selected>Select Plan</option>' +
+                plans.map(p => `<option value="${p.name.toLowerCase()}">${p.name}</option>`).join('');
+        }
 
-    // ============================================
-    // SUBSCRIPTION FORM
-    // ============================================
-    const subscribeForm = document.getElementById('subscribeForm');
-    subscribeForm?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        alert('🎉 Thank you for subscribing! You\'ll receive 20% off your first order.');
-        subscribeForm.reset();
-    });
-
-    // ============================================
-    // ROTATING PLAN INFO
-    // ============================================
-    const planInfoContent = {
-        silver: [
-            "Start your wellness journey with carefully portioned meals that help maintain consistent energy levels throughout the day.",
-            "Perfect balance of proteins and carbs designed for beginners looking to establish healthy eating habits.",
-            "Enjoy nutritious meals without the hassle of meal prep, ideal for those new to fitness nutrition."
-        ],
-        gold: [
-            "Unlock your full potential with premium ingredients and personalized nutrition tracking for sustainable transformation.",
-            "Advanced macro customization to support muscle building, fat loss, or performance enhancement goals.",
-            "Get the flexibility to swap meals based on your preferences while maintaining optimal nutrition."
-        ],
-        platinum: [
-            "Experience elite-level nutrition with dedicated support, ensuring every meal accelerates your path to excellence.",
-            "Personalized meal timing synced with your workout schedule for maximum performance and recovery.",
-            "Work directly with certified nutritionists to fine-tune your diet for competition-level results."
-        ]
+        // Fix animations for new elements
+        document.querySelectorAll('.plan-card').forEach(el => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+            observer.observe(el);
+        });
     };
 
+    // Initialize Plans
+    fetchPlans();
+
+    // Rotating Plan Info Logic
     const updatePlanInfo = () => {
-        Object.keys(planInfoContent).forEach(plan => {
-            const infoEl = document.getElementById(`${plan}Info`);
-            if (infoEl) {
-                const contents = planInfoContent[plan];
-                const randomIndex = Math.floor(Math.random() * contents.length);
-                infoEl.textContent = contents[randomIndex];
+        availablePlans.forEach(plan => {
+            if (!plan.infoContent || plan.infoContent.length === 0) return;
+            const el = document.getElementById(`planInfo-${plan._id}`);
+            if (el) {
+                const randomIndex = Math.floor(Math.random() * plan.infoContent.length);
+                el.textContent = plan.infoContent[randomIndex];
             }
         });
     };

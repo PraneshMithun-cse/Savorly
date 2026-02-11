@@ -732,6 +732,15 @@
                 <span>Orders</span>
                 <span class="nav-badge">12</span>
             </a>
+            <a href="admin-consultations.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                    <path d="M16 3.13a4 4 0 010 7.75" />
+                </svg>
+                <span>Consultations</span>
+            </a>
             <a href="admin-customers.html" class="nav-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
@@ -741,13 +750,7 @@
                 </svg>
                 <span>Customers</span>
             </a>
-            <a href="admin-feedback.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-                </svg>
-                <span>Feedback</span>
-                <span class="nav-badge">3</span>
-            </a>
+
             <a href="admin-settings.html" class="nav-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="3" />
@@ -1133,12 +1136,135 @@
 
                 // User is admin — load dashboard
                 await loadDashboard();
+                updateBadgeCount();
+                setInterval(updateBadgeCount, 60000);
             } catch (err) {
                 console.error('Auth error:', err);
                 alert('Access denied. Admin credentials required.');
                 window.location.href = 'index.html';
             }
         });
+
+        // Dynamic Badge Count
+        async function updateBadgeCount() {
+            try {
+                if (!authToken) return;
+                const badges = document.querySelectorAll('.nav-badge');
+                if (badges.length === 0) return;
+
+                const res = await fetch('/api/orders/stats', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    badges.forEach(badge => {
+                        badge.textContent = data.pending;
+                        badge.style.display = data.pending > 0 ? 'inline-flex' : 'none';
+                    });
+                }
+            } catch (e) { console.error('Badge update error', e); }
+        }
+
+        // Dynamic Badge Count
+        async function updateBadgeCount() {
+            try {
+                if (!authToken) return;
+                const badges = document.querySelectorAll('.nav-badge');
+                if (badges.length === 0) return;
+
+                const res = await fetch('/api/orders/stats', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    badges.forEach(badge => {
+                        badge.textContent = data.pending;
+                        badge.style.display = data.pending > 0 ? 'inline-flex' : 'none';
+                    });
+                }
+            } catch (e) { console.error('Badge update error', e); }
+        }
+
+        // Export Orders to CSV
+        async function exportOrders() {
+            try {
+                if (!authToken) return;
+                const res = await fetch('/api/orders?limit=1000', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                if (!res.ok) throw new Error('Failed to fetch orders');
+                const data = await res.json();
+                const orders = data.orders;
+
+                if (orders.length === 0) return alert('No orders to export');
+
+                // Define CSV headers
+                const headers = ['Order ID', 'Date', 'Customer Name', 'Phone', 'Address', 'Items', 'Total', 'Status', 'Payment'];
+                const rows = orders.map(o => [
+                    o.orderId,
+                    new Date(o.timestamp).toLocaleString(),
+                    o.customerDetails.name,
+                    o.customerDetails.phone,
+                    `"${(o.customerDetails.address || '').replace(/"/g, '""')}"`, // Escape quotes
+                    `"${o.items.map(i => `${i.quantity}x ${i.planName}`).join(', ')}"`,
+                    o.totalPrice,
+                    o.status,
+                    o.paymentMethod
+                ]);
+
+                const csvContent = [
+                    headers.join(','),
+                    ...rows.map(r => r.join(','))
+                ].join('\n');
+
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `savourly-orders-${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+            } catch (err) {
+                console.error('Export error:', err);
+                alert('Failed to export orders');
+            }
+        }
+
+        // Send Notifications Modal
+        function showNotifyModal() {
+            const msg = prompt("Enter notification message to send to all customers:");
+            if (msg) sendNotification(msg);
+        }
+
+        async function sendNotification(message) {
+            try {
+                const res = await fetch('/api/admin/notify', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + authToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
+                const data = await res.json();
+                if (res.ok) alert('Notification sent to ' + data.count + ' users!');
+                else alert('Failed: ' + data.error);
+            } catch (e) { alert('Error sending notification'); }
+        }
+
+        // Attach listeners
+        document.querySelector('.help-item:nth-child(1)').addEventListener('click', exportOrders);
+        document.querySelector('.help-item:nth-child(2)').addEventListener('click', showNotifyModal);
+
+        // Call after auth
+        const originalAuth = firebase.auth().onAuthStateChanged;
+
+        // We can just rely on the existing auth observer calling loadStats, so we add it there if possible, or sets an interval.
+        // Since loadStats is called in onAuthStateChanged, we can add it there.
+        // But wait, admin.html has a big script block. I should inject this function and call it.
     </script>
 </body>
 

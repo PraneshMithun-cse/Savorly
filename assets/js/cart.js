@@ -73,24 +73,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (addr.label === 'Home') icon = '🏠';
                 if (addr.label === 'Work') icon = '🏢';
 
+                // Construct display address
+                // Format: DoorNo, Apartment, Street, Area, City - Pincode
+                const addressLine1 = [addr.doorNo, addr.apartment, addr.street].filter(Boolean).join(', ');
+                const addressLine2 = [addr.line1, addr.city, addr.pincode].filter(Boolean).join(', '); // line1 is Area
+
+                // Save formatted address for display
+                addr.formatted = `${addressLine1}, ${addressLine2}`;
+
                 card.innerHTML = `
                     <div class="address-card-header">
                         <div class="address-label">${icon} ${addr.label}</div>
-                        <div class="address-check">✓</div>
+                        <div class="address-actions-wrapper" style="display:flex; gap:8px; align-items:center;">
+                            <button class="delete-address-btn" data-id="${addr.id}" title="Delete Address" style="background:none; border:none; cursor:pointer; padding:4px; margin-right:4px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                                </svg>
+                            </button>
+                            <div class="address-check">✓</div>
+                        </div>
                     </div>
-                    <div class="address-details">
-                        <strong>${addr.doorNo ? addr.doorNo + ', ' : ''}${addr.line1}</strong><br>
-                        ${addr.line2 ? addr.line2 + ', ' : ''}${addr.city} - ${addr.pincode}
+                    <div class="address-details" style="margin-top:8px;">
+                        <strong>${addressLine1}</strong><br>
+                        ${addressLine2}
                     </div>
-                    <div class="address-phone">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.05 12.05 0 0 0 .57 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.05 12.05 0 0 0 2.81.57A2 2 0 0 1 22 16.92z"/></svg>
+                    <div class="address-phone" style="margin-top:4px; font-size:12px; color:#6b7280;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:text-bottom;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.05 12.05 0 0 0 .57 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.05 12.05 0 0 0 2.81.57A2 2 0 0 1 22 16.92z"/></svg>
                         ${addr.phone}
                     </div>
                 `;
 
-                // Selection Logic
-                card.addEventListener('click', () => {
-                    selectAddress(addr);
+                // Selection Logic (click on card, but ignore delete button)
+                card.addEventListener('click', (e) => {
+                    if (!e.target.closest('.delete-address-btn')) {
+                        selectAddress(addr);
+                    }
                 });
 
                 // Auto-select logic if matches selectedLocation (or fallback to last used)
@@ -99,6 +116,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 savedAddressCards.appendChild(card);
+            });
+
+            // Attach Delete Event Listeners
+            document.querySelectorAll('.delete-address-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card selection
+                    deleteAddress(parseInt(btn.dataset.id));
+                });
             });
 
             // If no address selected but we have saved ones, select the last one
@@ -125,6 +150,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function deleteAddress(id) {
+        if (!confirm('Are you sure you want to delete this address?')) return;
+
+        let savedAddresses = JSON.parse(localStorage.getItem('savourlyAddresses')) || [];
+        savedAddresses = savedAddresses.filter(a => a.id !== id);
+        localStorage.setItem('savourlyAddresses', JSON.stringify(savedAddresses));
+
+        // Check if deleted address was selected
+        const selectedLocation = JSON.parse(localStorage.getItem('savourlySelectedLocation'));
+        if (selectedLocation?.id === id) {
+            localStorage.removeItem('savourlySelectedLocation');
+        }
+
+        renderDeliverySection();
+    }
+
     function selectAddress(addr) {
         // Visual selection
         document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
@@ -136,11 +177,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('userPhone').value = addr.phone;
 
         // Construct full address string
+        const addressLine1 = [addr.doorNo, addr.apartment, addr.street].filter(Boolean).join(', ');
+        const addressLine2 = [addr.line1, addr.city, addr.pincode].filter(Boolean).join(', ');
+        // Construct full string including landmark
         const parts = [
-            addr.doorNo, addr.line1, addr.line2, addr.landmark, addr.city, addr.state, addr.pincode
+            addressLine1, addressLine2, (addr.landmark ? `(Near ${addr.landmark})` : '')
         ].filter(Boolean);
-        const uniqueParts = [...new Set(parts)]; // Simple dedupe
-        document.getElementById('userAddress').value = uniqueParts.join(', ');
+
+        document.getElementById('userAddress').value = parts.join(', ');
 
         // Persist selection
         localStorage.setItem('savourlySelectedLocation', JSON.stringify({
@@ -191,7 +235,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('cartAddrCity').value = data.address.city || data.address.town || '';
                     document.getElementById('cartAddrState').value = data.address.state || 'Tamil Nadu';
                     document.getElementById('cartAddrPincode').value = data.address.postcode || '';
-                    document.getElementById('cartAddrRoad').value = data.address.road || data.address.suburb || '';
+                    // Populate Area/Colony
+                    document.getElementById('cartAddrRoad').value = data.address.suburb || data.address.neighbourhood || data.address.road || '';
+                    // Try to guess street
+                    if (data.address.road) {
+                        document.getElementById('cartAddrStreet').value = data.address.road;
+                    }
 
                     btn.innerHTML = '✓ Location Detected';
                     setTimeout(() => { btn.innerHTML = originalText; }, 2000);
@@ -206,15 +255,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Save New Address
     saveCartAddressBtn?.addEventListener('click', () => {
         // Basic Validation
-        const required = ['cartAddrName', 'cartAddrPhone', 'cartAddrHouse', 'cartAddrRoad', 'cartAddrPincode', 'cartAddrCity'];
+        const required = ['cartAddrName', 'cartAddrPhone', 'cartAddrHouse', 'cartAddrStreet', 'cartAddrRoad', 'cartAddrPincode', 'cartAddrCity'];
         let isValid = true;
         required.forEach(id => {
             const el = document.getElementById(id);
-            if (!el.value.trim()) {
-                el.style.borderColor = 'red';
+            if (!el || !el.value.trim()) {
+                if (el) el.style.borderColor = 'red';
                 isValid = false;
             } else {
-                el.style.borderColor = '';
+                if (el) el.style.borderColor = '';
             }
         });
 
@@ -224,7 +273,9 @@ document.addEventListener('DOMContentLoaded', () => {
             id: Date.now(),
             label: cartSelectedLabel,
             doorNo: document.getElementById('cartAddrHouse').value,
-            line1: document.getElementById('cartAddrRoad').value,
+            apartment: document.getElementById('cartAddrApartment').value, // Optional
+            street: document.getElementById('cartAddrStreet').value,
+            line1: document.getElementById('cartAddrRoad').value, // Area
             line2: '',
             landmark: document.getElementById('cartAddrLandmark').value,
             city: document.getElementById('cartAddrCity').value,

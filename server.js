@@ -35,7 +35,67 @@ try {
 
 // ─── Import Middleware & Models ─────────────────────────────────────────────
 const { verifyToken, requireRole, loadCredentials, saveCredentials } = require('./middleware/auth');
+const { verifyToken, requireRole, loadCredentials, saveCredentials } = require('./middleware/auth');
 const Order = require('./models/Order');
+const Consultation = require('./models/Consultation');
+const Plan = require('./models/Plan');
+const HelpRequest = require('./models/HelpRequest');
+
+// ─── Seeding ──────────────────────────────────────────────────────────────
+const seedPlans = async () => {
+    try {
+        const count = await Plan.countDocuments();
+        if (count > 0) return;
+
+        console.log('🌱 Seeding default plans...');
+        const plans = [
+            {
+                name: 'Silver Plan',
+                price: 1300,
+                description: 'Perfect for beginners starting their fitness journey with balanced nutrition.',
+                features: ['10 meals per week', 'Balanced macros', 'Weekly planning', 'Email support'],
+                image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=250&fit=crop',
+                infoContent: [
+                    "Start your wellness journey with carefully portioned meals that help maintain consistent energy levels throughout the day.",
+                    "Perfect balance of proteins and carbs designed for beginners looking to establish healthy eating habits.",
+                    "Enjoy nutritious meals without the hassle of meal prep, ideal for those new to fitness nutrition."
+                ],
+                badgeColor: 'silver'
+            },
+            {
+                name: 'Gold Plan',
+                price: 1500,
+                description: 'Ideal for dedicated fitness enthusiasts looking for optimal results.',
+                features: ['10 meals per week', 'Custom macro targets', 'Flexible meal swapping', '24/7 priority support', 'Monthly check-ins'],
+                image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=250&fit=crop',
+                infoContent: [
+                    "Unlock your full potential with premium ingredients and personalized nutrition tracking for sustainable transformation.",
+                    "Advanced macro customization to support muscle building, fat loss, or performance enhancement goals.",
+                    "Get the flexibility to swap meals based on your preferences while maintaining optimal nutrition."
+                ],
+                isPopular: true,
+                badgeColor: 'gold'
+            },
+            {
+                name: 'Platinum Plan',
+                price: 2000,
+                description: 'The ultimate package for athletes seeking peak performance.',
+                features: ['10 meals + juices', 'Personalized recipes', '1-on-1 nutritionist', 'Workout meal timing', 'Weekly analytics'],
+                image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=250&fit=crop',
+                infoContent: [
+                    "Experience elite-level nutrition with dedicated support, ensuring every meal accelerates your path to excellence.",
+                    "Personalized meal timing synced with your workout schedule for maximum performance and recovery.",
+                    "Work directly with certified nutritionists to fine-tune your diet for competition-level results."
+                ],
+                badgeColor: 'platinum'
+            }
+        ];
+        await Plan.insertMany(plans);
+        console.log('✅ Plans seeded successfully');
+    } catch (err) {
+        console.error('Seeding error:', err);
+    }
+};
 
 // ─── Express Setup ──────────────────────────────────────────────────────────
 const app = express();
@@ -48,14 +108,62 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
 // ─── MongoDB Connection ─────────────────────────────────────────────────────
+// ─── MongoDB Connection (Serverless Optimized) ──────────────────────────────
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/savourly';
 
-mongoose.connect(MONGODB_URI)
-    .then(() => console.log('✅ Connected to MongoDB:', MONGODB_URI))
-    .catch(err => {
+let isConnected = false;
+
+const connectDB = async () => {
+    if (isConnected || mongoose.connection.readyState === 1) {
+        return;
+    }
+
+    try {
+        const conn = await mongoose.connect(MONGODB_URI, {
+            // Options to ensure robust connection (deprecated options removed)
+        });
+        isConnected = true;
+        console.log('✅ MongoDB Connected:', conn.connection.host);
+        seedPlans();
+    } catch (err) {
         console.error('❌ MongoDB connection error:', err.message);
-        console.warn('   Make sure MongoDB is running. Install: https://www.mongodb.com/docs/manual/installation/');
+        // Don't exit process in serverless, just log
+    }
+};
+
+// Middleware to ensure DB is connected for every request
+app.use(async (req, res, next) => {
+    // Skip DB connection for static files to save time
+    if (req.path.startsWith('/assets') || req.path.match(/\.(css|js|png|jpg|ico)$/)) {
+        return next();
+    }
+
+    await connectDB();
+    next();
+});
+
+// ─── Debug Route (Temporary) ────────────────────────────────────────────────
+app.get('/api/debug', (req, res) => {
+    res.json({
+        status: 'ok',
+        env: {
+            NODE_ENV: process.env.NODE_ENV,
+            MONGODB_URI_SET: !!process.env.MONGODB_URI,
+            FIREBASE_JSON_SET: !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
+            FIREBASE_JSON_LENGTH: process.env.FIREBASE_SERVICE_ACCOUNT_JSON ? process.env.FIREBASE_SERVICE_ACCOUNT_JSON.length : 0
+        },
+        mongo: {
+            readyState: mongoose.connection.readyState,
+            host: mongoose.connection.host,
+            name: mongoose.connection.name
+        },
+        firebase: {
+            appsLength: admin.apps.length,
+            projectId: admin.apps.length ? admin.app().options.projectId : null,
+            credential: admin.apps.length ? (admin.app().options.credential ? 'set' : 'null') : 'null'
+        }
     });
+});
 
 // ─── Clean URL Routes (serve .html files without extension) ─────────────────
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
@@ -67,6 +175,197 @@ app.get('/cart', (req, res) => res.sendFile(path.join(__dirname, 'cart.html')));
 
 // ─── API Routes ─────────────────────────────────────────────────────────────
 // IMPORTANT: Specific routes (/my, /stats) MUST come before generic routes (/api/orders)
+
+// ─── Consultation Routes ────────────────────────────────────────────────────
+
+/**
+ * POST /api/consultations
+ * Book a new consultation (Public - no auth required for guests, or optional auth?)
+ * For now, we'll keep it public as it's a lead generation form.
+ */
+app.post('/api/consultations', async (req, res) => {
+    try {
+        const { name, email, phone, program, preferredTime } = req.body;
+
+        if (!name || !email || !phone || !preferredTime) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        const consultation = new Consultation({
+            name,
+            email,
+            phone,
+            program: program || '90-day',
+            preferredTime
+        });
+
+        await consultation.save();
+        console.log('📅 New consultation booking:', consultation._id);
+
+        res.status(201).json({
+            message: 'Consultation booked successfully!',
+            consultation
+        });
+    } catch (err) {
+        console.error('Consultation booking error:', err);
+        res.status(500).json({ error: 'Failed to book consultation' });
+    }
+});
+
+/**
+ * GET /api/admin/consultations
+ * List all consultations (Admin only)
+ */
+app.get('/api/admin/consultations', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        const consultations = await Consultation.find()
+            .sort({ timestamp: -1 });
+
+        const pendingCount = await Consultation.countDocuments({ status: 'Pending' });
+
+        res.json({ consultations, pendingCount });
+    } catch (err) {
+        console.error('Fetch consultations error:', err);
+        res.status(500).json({ error: 'Failed to fetch consultations' });
+    }
+});
+
+/**
+ * PATCH /api/admin/consultations/:id/status
+ * Update consultation status (Admin only)
+ */
+app.patch('/api/admin/consultations/:id/status', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        const { status } = req.body;
+        const validStatuses = ['Pending', 'Completed', 'Cancelled'];
+
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ error: 'Invalid status' });
+        }
+
+        const consultation = await Consultation.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            { new: true }
+        );
+
+        if (!consultation) {
+            return res.status(404).json({ error: 'Consultation not found' });
+        }
+
+        res.json({ message: 'Status updated', consultation });
+    } catch (err) {
+        console.error('Update consultation status error:', err);
+        res.status(500).json({ error: 'Failed to update status' });
+    }
+});
+
+// ─── Plan Routes ────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/plans
+ * Get all plans (Public)
+ */
+app.get('/api/plans', async (req, res) => {
+    try {
+        const plans = await Plan.find().sort({ price: 1 });
+        res.json(plans);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch plans' });
+    }
+});
+
+/**
+ * POST /api/plans
+ * Create a new plan (Admin only)
+ */
+app.post('/api/plans', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        const plan = new Plan(req.body);
+        await plan.save();
+        res.status(201).json(plan);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to create plan' });
+    }
+});
+
+/**
+ * PATCH /api/plans/:id
+ * Update a plan (Admin only)
+ */
+app.patch('/api/plans/:id', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        const plan = await Plan.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(plan);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update plan' });
+    }
+});
+
+/**
+ * DELETE /api/plans/:id
+ * Delete a plan (Admin only)
+ */
+app.delete('/api/plans/:id', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        await Plan.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Plan deleted' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete plan' });
+    }
+});
+
+// ─── Help & Support Routes ──────────────────────────────────────────────────
+
+/**
+ * POST /api/help
+ * Submit a help request (Auth required)
+ */
+app.post('/api/help', verifyToken, async (req, res) => {
+    try {
+        const { subject, message, name } = req.body;
+        const helpRequest = new HelpRequest({
+            userId: req.user.uid,
+            userName: name || req.user.name || 'User',
+            userEmail: req.user.email,
+            subject,
+            message
+        });
+        await helpRequest.save();
+        res.status(201).json({ message: 'Help request submitted' });
+    } catch (err) {
+        console.error('Help submit error:', err);
+        res.status(500).json({ error: 'Failed to submit help request' });
+    }
+});
+
+/**
+ * GET /api/my-orders
+ * Get orders for the logged-in user
+ */
+app.get('/api/my-orders', verifyToken, async (req, res) => {
+    try {
+        const orders = await Order.find({ firebaseUid: req.user.uid }).sort({ timestamp: -1 });
+        res.json(orders);
+    } catch (err) {
+        console.error('Fetch my orders error:', err);
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+});
+
+/**
+ * GET /api/admin/help
+ * Get all help requests (Admin only)
+ */
+app.get('/api/admin/help', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        const requests = await HelpRequest.find().sort({ createdAt: -1 });
+        res.json(requests);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch help requests' });
+    }
+});
+
 
 /**
  * POST /api/orders
@@ -311,6 +610,7 @@ app.get('/api/admin/customers', verifyToken, requireRole('admin'), async (req, r
                     name: { $last: '$customerDetails.name' },
                     email: { $last: '$customerDetails.email' },
                     phone: { $last: '$customerDetails.phone' },
+                    address: { $last: '$customerDetails.address' },
                     orderCount: { $sum: 1 },
                     totalSpent: { $sum: '$totalPrice' },
                     lastOrder: { $max: '$timestamp' },
@@ -404,6 +704,29 @@ app.delete('/api/admin/credentials', verifyToken, requireRole('admin'), async (r
     } catch (err) {
         console.error('Remove credential error:', err);
         res.status(500).json({ error: 'Failed to remove credential' });
+    }
+});
+
+/**
+ * POST /api/admin/notify
+ * Send a notification (mock or real) to all users
+ */
+app.post('/api/admin/notify', verifyToken, requireRole('admin'), async (req, res) => {
+    try {
+        const { message } = req.body;
+        if (!message) return res.status(400).json({ error: 'Message is required' });
+
+        // In a real app, this would use Firebase Cloud Messaging (FCM) or email (Nodemailer)
+        // For now, we'll just log it and maybe store it in a Notifications collection
+        console.log(`📢 BROADCAST NOTIFICATION: "${message}"`);
+
+        // Mock success - return count of users
+        const userCount = await Order.distinct('firebaseUid');
+
+        res.json({ message: 'Notification sent', count: userCount.length });
+    } catch (err) {
+        console.error('Notify error:', err);
+        res.status(500).json({ error: 'Failed to send notification' });
     }
 });
 

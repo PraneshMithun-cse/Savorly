@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders | Savourly Admin</title>
+    <title>Consultations | Savourly Admin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -120,98 +120,48 @@
             font-weight: 800;
         }
 
-        .filters {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
         }
 
-        .filter-btn {
-            padding: 10px 20px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-muted);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .filter-btn:hover,
-        .filter-btn.active {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .orders-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .order-card {
+        .card {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 20px;
-            display: grid;
-            grid-template-columns: 100px 1fr 200px 100px 120px 100px;
-            align-items: center;
-            gap: 16px;
             transition: all 0.2s;
         }
 
-        .order-card:hover {
+        .card:hover {
             border-color: var(--primary);
         }
 
-        .order-id {
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
             font-weight: 700;
-            color: var(--primary);
+            font-size: 16px;
+            margin-bottom: 4px;
         }
 
-        .order-customer strong {
-            display: block;
-            font-size: 15px;
-            margin-bottom: 2px;
-        }
-
-        .order-customer span {
+        .card-subtitle {
             font-size: 13px;
             color: var(--text-muted);
         }
 
-        .order-plan {
-            padding: 10px 14px;
-            background: var(--card-hover);
-            border-radius: 8px;
-        }
-
-        .order-plan strong {
-            display: block;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-
-        .order-plan span {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .order-amount {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
         .status-badge {
-            display: inline-block;
-            padding: 6px 14px;
+            padding: 4px 10px;
             border-radius: 50px;
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
-            text-align: center;
         }
 
         .status-badge.pending {
@@ -219,12 +169,7 @@
             color: var(--warning);
         }
 
-        .status-badge.preparing {
-            background: rgba(59, 130, 246, 0.15);
-            color: var(--info);
-        }
-
-        .status-badge.delivered {
+        .status-badge.completed {
             background: rgba(34, 197, 94, 0.15);
             color: var(--success);
         }
@@ -234,17 +179,49 @@
             color: var(--danger);
         }
 
-        .order-time {
-            font-size: 13px;
-            color: var(--text-muted);
-            text-align: right;
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
 
-        @media (max-width: 1200px) {
-            .order-card {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
+        .info-label {
+            color: var(--text-muted);
+        }
+
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--card-hover);
+        }
+
+        .btn-primary {
+            background: rgba(0, 201, 167, 0.15);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary);
+            color: #fff;
         }
 
         @media (max-width: 768px) {
@@ -281,13 +258,13 @@
                     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                     <polyline points="9,22 9,12 15,12 15,22" />
                 </svg><span>Dashboard</span></a>
-            <a href="admin-orders.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2">
+            <a href="admin-orders.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
                     <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
                     <line x1="3" y1="6" x2="21" y2="6" />
                     <path d="M16 10a4 4 0 01-8 0" />
-                </svg><span>Orders</span><span class="nav-badge">12</span></a>
-            <a href="admin-consultations.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none"
+                </svg><span>Orders</span></a>
+            <a href="admin-consultations.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
                     <circle cx="9" cy="7" r="4" />
@@ -311,18 +288,14 @@
 
     <main class="main">
         <header class="header">
-            <h1>All Orders</h1>
+            <h1>Consultations</h1>
+            <div id="pendingCount" class="nav-badge" style="display:inline-block; position:relative; top:0; margin:0;">0
+                Pending</div>
         </header>
 
-        <div class="filters">
-            <button class="filter-btn active">All Orders</button>
-            <button class="filter-btn">Pending</button>
-            <button class="filter-btn">Preparing</button>
-            <button class="filter-btn">Delivered</button>
-            <button class="filter-btn">Cancelled</button>
+        <div class="grid" id="consultationsGrid">
+            <!-- Loaded dynamically -->
         </div>
-
-        <div class="orders-grid" id="ordersGrid"></div>
     </main>
 
     <!-- Firebase SDK -->
@@ -352,143 +325,95 @@
             return Math.floor(hrs / 24) + 'd ago';
         }
 
-        function statusClass(s) {
-            return s.toLowerCase().replace(/\s+/g, '-');
-        }
-
-        async function fetchOrders(statusFilter) {
-            let url = '/api/orders?limit=50';
-            if (statusFilter && statusFilter !== 'all') {
-                // Capitalize first letter to match enum
-                const mapped = {
-                    'pending': 'Pending',
-                    'preparing': 'Preparing',
-                    'out-for-delivery': 'Out for Delivery',
-                    'delivered': 'Delivered',
-                    'cancelled': 'Cancelled'
-                };
-                url += '&status=' + encodeURIComponent(mapped[statusFilter] || statusFilter);
-            }
-
-            const res = await fetch(url, {
+        async function fetchConsultations() {
+            const res = await fetch('/api/admin/consultations', {
                 headers: { 'Authorization': 'Bearer ' + authToken }
             });
-            if (!res.ok) throw new Error('Failed to fetch orders');
+            if (!res.ok) throw new Error('Failed to fetch');
             return res.json();
         }
 
-        async function changeStatus(orderId, newStatus) {
+        async function updateStatus(id, status) {
+            if (!confirm(`Mark this consultation as ${status}?`)) return;
             try {
-                const res = await fetch('/api/orders/' + orderId + '/status', {
+                const res = await fetch(`/api/admin/consultations/${id}/status`, {
                     method: 'PATCH',
                     headers: {
                         'Authorization': 'Bearer ' + authToken,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ status: newStatus })
+                    body: JSON.stringify({ status })
                 });
-                if (!res.ok) throw new Error('Failed to update');
-                // Reload current filter
-                const activeBtn = document.querySelector('.filter-btn.active');
-                const filter = activeBtn ? activeBtn.dataset.filter : 'all';
-                await loadOrders(filter);
+                if (res.ok) {
+                    loadData();
+                } else {
+                    alert('Failed to update status');
+                }
             } catch (err) {
-                alert('Error updating status: ' + err.message);
+                console.error(err);
+                alert('Error updating status');
             }
         }
 
-        function renderOrders(orders) {
-            const grid = document.getElementById('ordersGrid');
+        function render(data) {
+            const grid = document.getElementById('consultationsGrid');
+            document.getElementById('pendingCount').textContent = data.pendingCount + ' Pending';
 
-            if (!orders || orders.length === 0) {
-                grid.innerHTML = '<div style="text-align:center; padding:60px; color:var(--text-muted); font-size:16px;">No orders found</div>';
+            if (data.consultations.length === 0) {
+                grid.innerHTML = '<div style="color:var(--text-muted)">No consultations found.</div>';
                 return;
             }
 
-            const allStatuses = ['Pending', 'Preparing', 'Out for Delivery', 'Delivered', 'Cancelled'];
-
-            grid.innerHTML = orders.map(o => `
-                <div class="order-card">
-                    <span class="order-id">${o.orderId}</span>
-                    <div class="order-customer">
-                        <strong>${o.customerDetails.name}</strong>
-                        <span>${o.customerDetails.phone}</span>
+            grid.innerHTML = data.consultations.map(c => `
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">${c.name}</div>
+                            <div class="card-subtitle">${timeAgo(c.timestamp)}</div>
+                        </div>
+                        <span class="status-badge ${c.status.toLowerCase()}">${c.status}</span>
                     </div>
-                    <div class="order-plan">
-                        <strong>${o.items.map(i => i.planName).join(', ')}</strong>
-                        <span>Qty: ${o.items.reduce((s, i) => s + i.quantity, 0)} · ₹${o.totalPrice.toLocaleString('en-IN')}</span>
+                    <div class="info-row">
+                        <span class="info-label">Program</span>
+                        <span>${c.program}</span>
                     </div>
-                    <span class="order-amount">₹${o.totalPrice.toLocaleString('en-IN')}</span>
-                    <div>
-                        <select class="status-badge ${statusClass(o.status)}" onchange="changeStatus('${o.orderId}', this.value)" style="
-                            background: var(--card-hover); color: var(--text); border: 1px solid var(--border);
-                            border-radius: 50px; padding: 6px 14px; font-size: 11px; font-weight: 600;
-                            cursor: pointer; text-transform: uppercase; appearance: auto; font-family: inherit;
-                        ">
-                            ${allStatuses.map(s => `<option value="${s}" ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}
-                        </select>
+                    <div class="info-row">
+                        <span class="info-label">Time</span>
+                        <span>${c.preferredTime}</span>
                     </div>
-                    <span class="order-time">${timeAgo(o.timestamp)}</span>
+                    <div class="info-row">
+                        <span class="info-label">Phone</span>
+                        <span>${c.phone}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <a href="mailto:${c.email}" style="color:var(--primary)">${c.email}</a>
+                    </div>
+                    
+                    ${c.status === 'Pending' ? `
+                    <div class="actions">
+                        <button class="btn btn-primary" onclick="updateStatus('${c._id}', 'Completed')">Mark Done</button>
+                        <button class="btn" onclick="updateStatus('${c._id}', 'Cancelled')" style="color:var(--danger); border-color:var(--danger)">Cancel</button>
+                    </div>
+                    ` : ''}
                 </div>
             `).join('');
         }
 
-        async function loadOrders(filter = 'all') {
+        async function loadData() {
             try {
-                const data = await fetchOrders(filter);
-                renderOrders(data.orders);
+                const data = await fetchConsultations();
+                render(data);
             } catch (err) {
-                console.error('Load orders error:', err);
+                console.error(err);
             }
         }
 
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const text = btn.textContent.toLowerCase().trim();
-                let filter = 'all';
-                if (text === 'pending') filter = 'pending';
-                else if (text === 'preparing') filter = 'preparing';
-                else if (text === 'delivered') filter = 'delivered';
-                else if (text === 'cancelled') filter = 'cancelled';
-                btn.dataset.filter = filter;
-                loadOrders(filter);
-            });
-        });
-
-        // Auth guard + init
         firebase.auth().onAuthStateChanged(async (user) => {
             if (!user) { window.location.href = 'signin.html'; return; }
-            try {
-                authToken = await user.getIdToken();
-                const test = await fetch('/api/orders/stats', { headers: { 'Authorization': 'Bearer ' + authToken } });
-                if (test.status === 403) { alert('Admin access required.'); window.location.href = 'index.html'; return; }
-                await loadOrders();
-                updateBadgeCount();
-                setInterval(updateBadgeCount, 60000);
-            } catch (err) {
-                console.error('Auth error:', err);
-                window.location.href = 'index.html';
-            }
+            authToken = await user.getIdToken();
+            loadData();
         });
-
-        async function updateBadgeCount() {
-            try {
-                if (!authToken) return;
-                const badges = document.querySelectorAll('.nav-badge');
-                if (badges.length === 0) return;
-                const res = await fetch('/api/orders/stats', { headers: { 'Authorization': 'Bearer ' + authToken } });
-                if (res.ok) {
-                    const data = await res.json();
-                    badges.forEach(badge => {
-                        badge.textContent = data.pending;
-                        badge.style.display = data.pending > 0 ? 'inline-flex' : 'none';
-                    });
-                }
-            } catch (e) { console.error(e); }
-        }
     </script>
 </body>
 
