@@ -118,9 +118,16 @@ const connectDB = async () => {
         return;
     }
 
+    // skip localhost connection on Vercel to prevent timeout 500s
+    if (process.env.VERCEL === '1' && MONGODB_URI.includes('localhost')) {
+        console.warn('⚠️  Vercel environment detected but MONGODB_URI is localhost. Skipping connection.');
+        return;
+    }
+
     try {
         const conn = await mongoose.connect(MONGODB_URI, {
             // Options to ensure robust connection (deprecated options removed)
+            serverSelectionTimeoutMS: 5000 // Fail fast if cannot connect
         });
         isConnected = true;
         console.log('✅ MongoDB Connected:', conn.connection.host);
