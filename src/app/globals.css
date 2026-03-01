@@ -1,0 +1,94 @@
+/* Empty to allow route-specific styling */
+
+/* Payment Modal Styles */
+.payment-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.payment-modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.payment-modal {
+    background: white;
+    width: 100%;
+    max-width: 420px;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    transform: translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.payment-modal-overlay.active .payment-modal {
+    transform: translateY(0);
+}
+
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.payment-option-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: #f8f9fa;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+}
+
+.payment-option-btn:hover {
+    background: #fff;
+    border-color: #00C9A7;
+    box-shadow: 0 4px 12px rgba(0, 201, 167, 0.1);
+}
+
+.payment-option-btn .option-icon {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.payment-option-btn .option-details {
+    flex: 1;
+}
+
+.payment-option-btn strong {
+    display: block;
+    color: #111;
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
+.payment-option-btn span {
+    display: block;
+    color: #666;
+    font-size: 13px;
+}
